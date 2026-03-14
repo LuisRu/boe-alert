@@ -379,15 +379,10 @@ export default function LandingPage() {
           </div>
 
           {/* Panel de detalle:
-              - Móvil: overlay a pantalla completa (fixed inset-0)
+              - Móvil: ocupa ancho completo (la lista se oculta arriba)
               - Desktop (md+): columna lateral sticky */}
           {panelOpen && (
-            <div className="
-              fixed inset-0 z-50 bg-gray-950 overflow-hidden flex flex-col
-              md:inset-auto md:z-auto md:flex-1 md:min-w-0
-              md:rounded-xl md:border md:border-gray-800 md:flex md:flex-col
-              md:sticky md:top-6
-            ">
+            <div className="w-full md:flex-1 md:min-w-0 rounded-xl border border-gray-800 overflow-hidden flex flex-col md:sticky md:top-6">
               {/* Cabecera del panel */}
               <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
                 {/* Móvil: botón volver */}
