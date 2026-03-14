@@ -19,11 +19,11 @@ const CATEGORIA_STYLES: Record<string, string> = {
 }
 
 const SECCION_COLORS: Record<string, string> = {
-  'I. Disposiciones generales': 'text-blue-400 border-blue-800',
-  'II. Autoridades y personal': 'text-purple-400 border-purple-800',
-  'III. Otras disposiciones': 'text-teal-400 border-teal-800',
+  'I. Disposiciones generales':   'text-blue-400 border-blue-800',
+  'II. Autoridades y personal':   'text-purple-400 border-purple-800',
+  'III. Otras disposiciones':     'text-teal-400 border-teal-800',
   'IV. Administración de Justicia': 'text-red-400 border-red-800',
-  'V. Anuncios': 'text-amber-400 border-amber-800',
+  'V. Anuncios':                  'text-amber-400 border-amber-800',
 }
 
 function seccionColor(seccion: string): string {
@@ -150,58 +150,68 @@ export default function LandingPage() {
 
   return (
     <main className="min-h-screen bg-gray-950 text-gray-100">
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-4 py-8 md:px-6 md:py-12">
+
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold tracking-tight text-white">BOE Alert</h1>
-          <p className="mt-3 text-gray-400 text-lg">
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">BOE Alert</h1>
+          <p className="mt-2 text-gray-400 text-base md:text-lg">
             El BOE diario, filtrado para lo que importa a tu negocio.
           </p>
         </div>
 
-        {/* Layout: lista + panel lateral */}
-        <div className="flex gap-6 items-start">
+        {/* Layout: lista + panel lateral en desktop, stacked en móvil */}
+        <div className="md:flex md:gap-6 md:items-start">
 
-          {/* Columna principal */}
-          <div className={`min-w-0 transition-all duration-300 ${panelOpen ? 'w-[45%] shrink-0' : 'w-full'}`}>
+          {/* Columna principal — se oculta en móvil cuando el panel está abierto */}
+          <div className={`
+            min-w-0 md:transition-all md:duration-300
+            ${panelOpen ? 'hidden md:block md:w-[45%] md:shrink-0' : 'w-full'}
+          `}>
             <div className="rounded-xl border border-gray-800 overflow-hidden">
+
               {/* Toolbar */}
-              <div className="flex items-center justify-between gap-4 px-5 py-3 bg-gray-900 border-b border-gray-800 flex-wrap">
+              <div className="px-4 py-3 bg-gray-900 border-b border-gray-800 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+                {/* Dots + título */}
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-gray-700" />
                   <div className="w-3 h-3 rounded-full bg-gray-700" />
                   <div className="w-3 h-3 rounded-full bg-gray-700" />
-                  <span className="ml-3 text-gray-400 text-sm font-mono">pipeline · boe-ingestion</span>
+                  <span className="ml-2 text-gray-400 text-xs font-mono">pipeline · boe-ingestion</span>
                 </div>
 
                 {/* Selector de fechas + botón */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <label className="text-xs text-gray-500">Desde</label>
-                  <input
-                    type="date"
-                    value={dateFrom}
-                    max={today}
-                    onChange={e => {
-                      setDateFrom(e.target.value)
-                      if (e.target.value > dateTo) setDateTo(e.target.value)
-                    }}
-                    disabled={status === 'loading'}
-                    className="text-xs text-gray-300 bg-gray-950 border border-gray-700 rounded px-2 py-1 disabled:opacity-40"
-                  />
-                  <label className="text-xs text-gray-500">Hasta</label>
-                  <input
-                    type="date"
-                    value={dateTo}
-                    min={dateFrom}
-                    max={today}
-                    onChange={e => setDateTo(e.target.value)}
-                    disabled={status === 'loading'}
-                    className="text-xs text-gray-300 bg-gray-950 border border-gray-700 rounded px-2 py-1 disabled:opacity-40"
-                  />
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-xs text-gray-500 shrink-0">Desde</label>
+                    <input
+                      type="date"
+                      value={dateFrom}
+                      max={today}
+                      onChange={e => {
+                        setDateFrom(e.target.value)
+                        if (e.target.value > dateTo) setDateTo(e.target.value)
+                      }}
+                      disabled={status === 'loading'}
+                      className="text-xs text-gray-300 bg-gray-950 border border-gray-700 rounded px-2 py-1 disabled:opacity-40 w-full sm:w-auto"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-xs text-gray-500 shrink-0">Hasta</label>
+                    <input
+                      type="date"
+                      value={dateTo}
+                      min={dateFrom}
+                      max={today}
+                      onChange={e => setDateTo(e.target.value)}
+                      disabled={status === 'loading'}
+                      className="text-xs text-gray-300 bg-gray-950 border border-gray-700 rounded px-2 py-1 disabled:opacity-40 w-full sm:w-auto"
+                    />
+                  </div>
                   <button
                     onClick={runPipeline}
                     disabled={status === 'loading'}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors w-full sm:w-auto"
                   >
                     {status === 'loading' ? (
                       <>
@@ -216,10 +226,10 @@ export default function LandingPage() {
               </div>
 
               {/* Log */}
-              <div className="bg-gray-950 px-5 py-4 font-mono text-sm min-h-[80px] border-b border-gray-800">
+              <div className="bg-gray-950 px-4 py-4 font-mono text-xs md:text-sm min-h-[72px] border-b border-gray-800">
                 {status === 'idle' ? (
                   <p className="text-gray-600">
-                    $ Selecciona un rango de fechas y pulsa &quot;Ejecutar ingesta&quot;
+                    $ Selecciona un rango y pulsa &quot;Ejecutar ingesta&quot;
                     <span className="animate-pulse">_</span>
                   </p>
                 ) : (
@@ -245,34 +255,34 @@ export default function LandingPage() {
                 )}
               </div>
 
-              {/* Filtros de categoría */}
+              {/* Filtros de categoría — scroll horizontal en móvil */}
               {status === 'done' && items.length > 0 && (
-                <div className="px-5 py-3 bg-gray-900 border-b border-gray-800 flex flex-wrap gap-2 items-center">
-                  {([ 'TODAS', 'AYUDA', 'LICITACION', 'NORMATIVA', 'EMPLEO'] as const).map(cat => {
+                <div className="px-4 py-3 bg-gray-900 border-b border-gray-800 flex items-center gap-2 overflow-x-auto">
+                  {(['TODAS', 'AYUDA', 'LICITACION', 'NORMATIVA', 'EMPLEO'] as const).map(cat => {
                     const count = cat === 'TODAS' ? items.length : (stats?.porCategoria[cat] ?? 0)
                     const labels: Record<string, string> = {
-                      TODAS: 'Todas', AYUDA: 'Ayudas', LICITACION: 'Licitaciones', NORMATIVA: 'Normativa', EMPLEO: 'Empleo público',
+                      TODAS: 'Todas', AYUDA: 'Ayudas', LICITACION: 'Licitaciones', NORMATIVA: 'Normativa', EMPLEO: 'Empleo',
                     }
                     const colors: Record<string, string> = {
-                      TODAS:      filtroCategoria === 'TODAS'      ? 'bg-gray-700 text-white border-gray-500'       : 'text-gray-400 border-gray-700 hover:border-gray-500',
-                      AYUDA:      filtroCategoria === 'AYUDA'      ? 'bg-green-900/60 text-green-300 border-green-700' : 'text-green-600 border-green-900 hover:border-green-700',
+                      TODAS:      filtroCategoria === 'TODAS'      ? 'bg-gray-700 text-white border-gray-500'          : 'text-gray-400 border-gray-700 hover:border-gray-500',
+                      AYUDA:      filtroCategoria === 'AYUDA'      ? 'bg-green-900/60 text-green-300 border-green-700'  : 'text-green-600 border-green-900 hover:border-green-700',
                       LICITACION: filtroCategoria === 'LICITACION' ? 'bg-amber-900/60 text-amber-300 border-amber-700'  : 'text-amber-600 border-amber-900 hover:border-amber-700',
-                      NORMATIVA:  filtroCategoria === 'NORMATIVA'  ? 'bg-blue-900/60 text-blue-300 border-blue-700'    : 'text-blue-600 border-blue-900 hover:border-blue-700',
-                      EMPLEO:     filtroCategoria === 'EMPLEO'     ? 'bg-purple-900/60 text-purple-300 border-purple-700' : 'text-purple-600 border-purple-900 hover:border-purple-700',
+                      NORMATIVA:  filtroCategoria === 'NORMATIVA'  ? 'bg-blue-900/60 text-blue-300 border-blue-700'     : 'text-blue-600 border-blue-900 hover:border-blue-700',
+                      EMPLEO:     filtroCategoria === 'EMPLEO'     ? 'bg-purple-900/60 text-purple-300 border-purple-700': 'text-purple-600 border-purple-900 hover:border-purple-700',
                     }
                     return (
                       <button
                         key={cat}
                         onClick={() => { setFiltroCategoria(cat); closeDetail() }}
-                        className={`text-xs border rounded px-3 py-1 transition-colors ${colors[cat]}`}
+                        className={`text-xs border rounded px-3 py-1 transition-colors shrink-0 ${colors[cat]}`}
                       >
                         {labels[cat]} <span className="opacity-60">({count})</span>
                       </button>
                     )
                   })}
                   {stats && (
-                    <span className="text-xs text-gray-600 ml-auto">
-                      {stats.relevantes}/{stats.totalBruto} relevantes
+                    <span className="text-xs text-gray-600 ml-auto shrink-0 pl-2">
+                      {stats.relevantes}/{stats.totalBruto}
                     </span>
                   )}
                 </div>
@@ -280,18 +290,18 @@ export default function LandingPage() {
 
               {/* Resultados */}
               {status === 'done' && itemsVisibles.length > 0 && (
-                <div className="divide-y divide-gray-800 max-h-[640px] overflow-y-auto">
-                  {/* Resumen por sección */}
-                  <div className="px-5 py-3 bg-gray-900/60 flex flex-wrap gap-x-5 gap-y-1 items-center">
-                    <span className="text-xs text-gray-500 mr-2">
+                <div className="divide-y divide-gray-800 max-h-[60vh] md:max-h-[640px] overflow-y-auto">
+                  {/* Resumen de secciones — scroll horizontal en móvil */}
+                  <div className="px-4 py-3 bg-gray-900/60 flex gap-x-3 gap-y-1 items-center overflow-x-auto">
+                    <span className="text-xs text-gray-500 shrink-0">
                       {rangoDesde === rangoHasta ? rangoDesde : `${rangoDesde} – ${rangoHasta}`}
                     </span>
                     {Array.from(grouped.entries()).map(([sec, docs]) => (
                       <span
                         key={sec}
-                        className={`text-xs font-mono border rounded px-2 py-0.5 ${seccionColor(sec)}`}
+                        className={`text-xs font-mono border rounded px-2 py-0.5 shrink-0 ${seccionColor(sec)}`}
                       >
-                        {sec} ({docs.length})
+                        {sec.split('. ')[0]} ({docs.length})
                       </span>
                     ))}
                   </div>
@@ -299,40 +309,43 @@ export default function LandingPage() {
                   {/* Documentos agrupados */}
                   {Array.from(grouped.entries()).map(([sec, docs]) => (
                     <div key={sec}>
-                      <div className={`px-5 py-2 text-xs font-semibold uppercase tracking-wider ${seccionColor(sec).split(' ')[0]} bg-gray-900/40`}>
+                      <div className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider ${seccionColor(sec).split(' ')[0]} bg-gray-900/40`}>
                         {sec}
                       </div>
                       {docs.map((item) => (
                         <button
                           key={item.id}
                           onClick={() => openDetail(item.id)}
-                          className={`w-full text-left px-5 py-3 transition-colors group border-l-2 ${
+                          className={`w-full text-left px-4 py-3 transition-colors group border-l-2 ${
                             selectedId === item.id
                               ? 'bg-blue-950/40 border-blue-500'
                               : 'hover:bg-gray-900/40 border-transparent'
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                              <span className="text-xs font-mono text-blue-400">{item.id}</span>
-                              <span className="mx-2 text-gray-700">·</span>
-                              <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${CATEGORIA_STYLES[item.categoria]}`}>
-                                {CATEGORIA_LABELS[item.categoria]}
-                              </span>
-                              <span className="mx-2 text-gray-700">·</span>
-                              <span className="text-xs text-gray-500">{item.departamento}</span>
-                              {item.epigrafe && (
-                                <>
-                                  <span className="mx-2 text-gray-700">·</span>
-                                  <span className="text-xs text-gray-600 italic">{item.epigrafe}</span>
-                                </>
-                              )}
-                              <p className={`mt-1 text-sm leading-snug ${panelOpen ? 'line-clamp-3' : 'line-clamp-2'} ${selectedId === item.id ? 'text-white' : 'text-gray-200'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              {/* Metadata row */}
+                              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                                <span className="text-xs font-mono text-blue-400 truncate max-w-[140px] sm:max-w-none">{item.id}</span>
+                                <span className="text-gray-700">·</span>
+                                <span className={`text-xs font-medium px-1.5 py-0.5 rounded shrink-0 ${CATEGORIA_STYLES[item.categoria]}`}>
+                                  {CATEGORIA_LABELS[item.categoria]}
+                                </span>
+                                {item.departamento && (
+                                  <>
+                                    <span className="text-gray-700 hidden sm:inline">·</span>
+                                    <span className="text-xs text-gray-500 hidden sm:inline truncate">{item.departamento}</span>
+                                  </>
+                                )}
+                              </div>
+                              {/* Título */}
+                              <p className={`mt-1 text-sm leading-snug line-clamp-2 ${selectedId === item.id ? 'text-white' : 'text-gray-200'}`}>
                                 {item.titulo}
                               </p>
                             </div>
+                            {/* Fecha + indicador */}
                             <div className="shrink-0 text-right">
-                              <span className="text-xs text-gray-700">{item.fecha}</span>
+                              <span className="text-xs text-gray-700 whitespace-nowrap">{item.fecha}</span>
                               <br />
                               <span className={`text-xs transition-colors whitespace-nowrap ${selectedId === item.id ? 'text-blue-400' : 'text-gray-700 group-hover:text-gray-400'}`}>
                                 {selectedId === item.id ? '← ver' : 'ver →'}
@@ -365,21 +378,41 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* Panel de detalle */}
+          {/* Panel de detalle:
+              - Móvil: overlay a pantalla completa (fixed inset-0)
+              - Desktop (md+): columna lateral sticky */}
           {panelOpen && (
-            <div className="flex-1 min-w-0 rounded-xl border border-gray-800 overflow-hidden sticky top-6">
-              <div className="flex items-center justify-between px-5 py-3 bg-gray-900 border-b border-gray-800">
-                <span className="text-xs font-mono text-gray-400">{selectedId}</span>
+            <div className="
+              fixed inset-0 z-50 bg-gray-950 overflow-hidden flex flex-col
+              md:inset-auto md:z-auto md:flex-1 md:min-w-0
+              md:rounded-xl md:border md:border-gray-800 md:flex md:flex-col
+              md:sticky md:top-6
+            ">
+              {/* Cabecera del panel */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
+                {/* Móvil: botón volver */}
                 <button
                   onClick={closeDetail}
-                  className="text-gray-600 hover:text-gray-300 text-lg leading-none transition-colors"
+                  className="md:hidden flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  ← Volver
+                </button>
+                {/* Desktop: ID del doc */}
+                <span className="hidden md:inline text-xs font-mono text-gray-400 truncate">{selectedId}</span>
+                {/* Desktop: botón cerrar */}
+                <button
+                  onClick={closeDetail}
+                  className="hidden md:block text-gray-600 hover:text-gray-300 text-lg leading-none transition-colors"
                   aria-label="Cerrar"
                 >
                   ✕
                 </button>
+                {/* Móvil: ID del doc (derecha) */}
+                <span className="md:hidden text-xs font-mono text-gray-600 truncate max-w-[160px]">{selectedId}</span>
               </div>
 
-              <div className="max-h-[720px] overflow-y-auto">
+              {/* Contenido del panel */}
+              <div className="flex-1 overflow-y-auto">
                 {detailStatus === 'loading' && (
                   <div className="flex items-center justify-center gap-3 py-16 text-gray-500 text-sm">
                     <span className="inline-block w-4 h-4 border-2 border-gray-600 border-t-blue-400 rounded-full animate-spin" />
@@ -450,7 +483,7 @@ export default function LandingPage() {
                       {detail.paragrafos.length === 0 ? (
                         <p className="text-sm text-gray-500">No se pudo extraer el texto de este documento.</p>
                       ) : (
-                        <div className="space-y-3">
+                        <div className="space-y-3 pb-6">
                           {detail.paragrafos.map((para, i) => (
                             <p key={i} className="text-sm text-gray-300 leading-relaxed">{para}</p>
                           ))}
