@@ -40,12 +40,17 @@ const INCLUDE_RULES: Array<{
   { section: '1',  categoria: 'NORMATIVA',  check: (ep)    => matchesAny(ep, ['Impuestos', 'Seguridad Social', 'Empleo', 'Vivienda', 'Tributos', 'Medidas fiscales', 'Medidas tributarias', 'Tasas', 'IRPF', 'Colegios profesionales']) },
   { section: '5A', categoria: 'LICITACION', check: (_, t)  => t.trim().toLowerCase().startsWith('anuncio de licitación') },
   { section: '2B', categoria: 'EMPLEO',     check: (ep)    => matchesAny(ep, ['Personal funcionario', 'Personal laboral', 'Personal de administración']) },
-  { section: '5B', categoria: 'AYUDA',      check: (_, t)  => matchesAny(t, ['subvención', 'ayuda', 'convocatoria', 'Next Generation', 'PERTE']) },
+  { section: '5B', categoria: 'AYUDA',      check: (_, t)  => matchesAny(t, ['subvención', 'ayudas para', 'convocatoria de ayudas', 'convocatoria de subvenciones', 'convocatoria de becas', 'Next Generation', 'PERTE']) },
 ]
 
+// Normaliza a minúsculas y elimina tildes/diacríticos para comparación robusta
+function normalize(text: string): string {
+  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
 function matchesAny(text: string, keywords: readonly string[]): boolean {
-  const lower = text.toLowerCase()
-  return keywords.some(k => lower.includes(k.toLowerCase()))
+  const norm = normalize(text)
+  return keywords.some(k => norm.includes(normalize(k)))
 }
 
 // Devuelve la categoría si el documento es relevante, null si debe descartarse.
