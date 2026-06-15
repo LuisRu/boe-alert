@@ -44,6 +44,7 @@ export function AlertCard({
   const [fbText, setFbText] = useState('')
   const [fbSent, setFbSent] = useState(false)
   const [fbSending, setFbSending] = useState(false)
+  const [whyOpen, setWhyOpen] = useState(false)
 
   async function enviarFeedback() {
     if (!fbText.trim()) return
@@ -96,6 +97,11 @@ export function AlertCard({
             <span className="text-lg font-bold leading-none">{alerta.score}</span>
             <span className="text-[10px] opacity-90">{sc.label}</span>
           </div>
+          {showFeedback && (
+            <button onClick={() => setWhyOpen(true)} className="text-[11px] font-medium text-brand-700 hover:underline">
+              ¿por qué?
+            </button>
+          )}
         </div>
       </div>
 
@@ -228,6 +234,48 @@ export function AlertCard({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Diálogo "¿por qué te mostramos esto?" */}
+      {whyOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setWhyOpen(false)}>
+          <div className="max-h-[80vh] w-full max-w-md overflow-auto rounded-xl bg-white p-5 shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="mb-2 flex items-start justify-between gap-3">
+              <h4 className="font-semibold text-ink">¿Por qué te mostramos esta ayuda?</h4>
+              <button onClick={() => setWhyOpen(false)} className="shrink-0 text-subtle hover:text-ink">✕</button>
+            </div>
+            <p className="text-sm text-subtle">{c.titulo}</p>
+
+            <div className="mt-3 rounded-lg bg-brand-50/60 p-3 text-sm">
+              Encaje: <strong>{alerta.score}/100</strong> · {sc.label}
+            </div>
+
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-subtle">Te la mostramos porque</p>
+            <ul className="mt-1 space-y-1">
+              {alerta.reasons.map(r => (
+                <li key={r} className="flex items-center gap-1.5 text-sm text-ink"><span className="text-brand-600">✓</span> {r}</li>
+              ))}
+            </ul>
+
+            {alerta.elegibilidad && alerta.elegibilidad.length > 0 && (
+              <>
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-subtle">Requisitos frente a tu perfil</p>
+                <ul className="mt-1 space-y-1">
+                  {alerta.elegibilidad.map(e => (
+                    <li key={e.label} className="flex items-center gap-1.5 text-sm text-ink">
+                      <span>{e.estado === 'ok' ? '✅' : e.estado === 'fail' ? '❌' : '❓'}</span> {e.label}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            <p className="mt-3 border-t border-line pt-3 text-xs text-subtle">
+              El encaje se calcula por reglas: territorio, tipo de beneficiario, tema/intereses y palabras clave.
+              Ojo: si una ayuda es autonómica (toda Galicia) o estatal, te aparece aunque su título mencione otro municipio.
+            </p>
+          </div>
         </div>
       )}
     </article>
