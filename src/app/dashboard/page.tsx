@@ -80,7 +80,6 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [sort, setSort] = useState<Sort>('score')
   const [desde, setDesde] = useState('')
   const [hasta, setHasta] = useState('')
-  const [soloElegibles, setSoloElegibles] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -88,7 +87,6 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
     const p = new URLSearchParams({ estado, minScore: String(minScore), sort })
     if (desde) p.set('fechaFinDesde', desde)
     if (hasta) p.set('fechaFinHasta', hasta)
-    if (soloElegibles) p.set('ocultarNoElegibles', 'true')
     try {
       setAlerts(await api<Alerta[]>(`/api/alerts?${p.toString()}`))
     } catch (e) {
@@ -96,7 +94,7 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
     } finally {
       setLoading(false)
     }
-  }, [estado, minScore, sort, desde, hasta, soloElegibles])
+  }, [estado, minScore, sort, desde, hasta])
 
   useEffect(() => { load() }, [load])
 
@@ -136,11 +134,8 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
               <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} className="rounded-lg border border-line px-2 py-1.5 text-sm" />
             </div>
           </Group>
-          <label className="flex items-center gap-2 pb-1.5 text-sm text-ink">
-            <input type="checkbox" checked={soloElegibles} onChange={e => setSoloElegibles(e.target.checked)} />
-            Ocultar las que no cumplo
-          </label>
         </div>
+        <p className="mt-3 text-xs text-subtle">Solo te mostramos ayudas que encajan con tu perfil y que probablemente puedas pedir.</p>
       </div>
 
       {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
@@ -160,29 +155,47 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
 
 // ─── Pestaña "Explorar": todo el catálogo con búsqueda ───────────────────────
 
+const PAGE = 100 // debe coincidir con el PAGE_SIZE del backend (buscar)
+
 function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [items, setItems] = useState<ConvScored[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [page, setPage] = useState(0)
   const [texto, setTexto] = useState('')
   const [soloAbiertas, setSoloAbiertas] = useState(true)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    const p = new URLSearchParams({ soloAbiertas: String(soloAbiertas) })
-    if (texto) p.set('texto', texto)
-    try {
-      setItems(await api<ConvScored[]>(`/api/alerts/buscar?${p.toString()}`))
-    } finally {
-      setLoading(false)
-    }
-  }, [texto, soloAbiertas])
+  const fetchPage = useCallback(
+    async (p: number, append: boolean) => {
+      const params = new URLSearchParams({ soloAbiertas: String(soloAbiertas), page: String(p) })
+      if (texto) params.set('texto', texto)
+      const res = await api<ConvScored[]>(`/api/alerts/buscar?${params.toString()}`)
+      setHasMore(res.length === PAGE)
+      setItems(prev => (append ? [...prev, ...res] : res))
+    },
+    [texto, soloAbiertas]
+  )
 
-  useEffect(() => { load() }, [load])
+  // Buscar (reinicia a la página 0).
+  const buscar = useCallback(async () => {
+    setLoading(true)
+    setPage(0)
+    try { await fetchPage(0, false) } finally { setLoading(false) }
+  }, [fetchPage])
+
+  useEffect(() => { buscar() }, [buscar])
+
+  async function cargarMas() {
+    setLoadingMore(true)
+    const next = page + 1
+    try { await fetchPage(next, true); setPage(next) } finally { setLoadingMore(false) }
+  }
 
   return (
     <>
       <form
-        onSubmit={e => { e.preventDefault(); load() }}
+        onSubmit={e => { e.preventDefault(); buscar() }}
         className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4 shadow-sm"
       >
         <input
@@ -199,10 +212,10 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
       {loading ? (
         <p className="text-subtle">Cargando…</p>
       ) : items.length === 0 ? (
-        <Empty title="Sin resultados." hint="Prueba otro término o desactiva 'solo abiertas'." />
+        <Empty title="Sin resultados." hint="Prueba otro término o desactiva «solo abiertas»." />
       ) : (
         <>
-          <p className="mb-3 text-sm text-subtle">{items.length} convocatorias (ordenadas por encaje con tu perfil)</p>
+          <p className="mb-3 text-sm text-subtle">{items.length} convocatorias{hasMore ? '+' : ''} (ordenadas por encaje con tu perfil)</p>
           <div className="space-y-4">
             {items.map(c => (
               <AlertCard
@@ -212,6 +225,17 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
               />
             ))}
           </div>
+          {hasMore && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={cargarMas}
+                disabled={loadingMore}
+                className="rounded-lg border border-line bg-white px-5 py-2 text-sm font-medium text-ink hover:border-brand-500 disabled:opacity-50"
+              >
+                {loadingMore ? 'Cargando…' : 'Cargar más'}
+              </button>
+            </div>
+          )}
         </>
       )}
     </>
