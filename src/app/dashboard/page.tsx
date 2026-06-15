@@ -155,41 +155,43 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
 
 // ─── Pestaña "Explorar": todo el catálogo con búsqueda ───────────────────────
 
-const PAGE = 100 // debe coincidir con el PAGE_SIZE del backend (buscar)
+interface BuscarResp {
+  items: ConvScored[]
+  total: number
+  page: number
+  totalPages: number
+}
 
 function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [items, setItems] = useState<ConvScored[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [texto, setTexto] = useState('')
   const [soloAbiertas, setSoloAbiertas] = useState(true)
+  // Texto efectivo de búsqueda (solo cambia al pulsar Buscar, no al teclear).
+  const [queryActiva, setQueryActiva] = useState('')
 
-  const fetchPage = useCallback(
-    async (p: number, append: boolean) => {
-      const params = new URLSearchParams({ soloAbiertas: String(soloAbiertas), page: String(p) })
-      if (texto) params.set('texto', texto)
-      const res = await api<ConvScored[]>(`/api/alerts/buscar?${params.toString()}`)
-      setHasMore(res.length === PAGE)
-      setItems(prev => (append ? [...prev, ...res] : res))
-    },
-    [texto, soloAbiertas]
-  )
-
-  // Buscar (reinicia a la página 0).
-  const buscar = useCallback(async () => {
+  useEffect(() => {
+    let cancel = false
     setLoading(true)
+    const params = new URLSearchParams({ soloAbiertas: String(soloAbiertas), page: String(page) })
+    if (queryActiva) params.set('texto', queryActiva)
+    api<BuscarResp>(`/api/alerts/buscar?${params.toString()}`)
+      .then(r => {
+        if (cancel) return
+        setItems(r.items)
+        setTotal(r.total)
+        setTotalPages(r.totalPages)
+      })
+      .finally(() => !cancel && setLoading(false))
+    return () => { cancel = true }
+  }, [page, queryActiva, soloAbiertas])
+
+  function buscar() {
     setPage(0)
-    try { await fetchPage(0, false) } finally { setLoading(false) }
-  }, [fetchPage])
-
-  useEffect(() => { buscar() }, [buscar])
-
-  async function cargarMas() {
-    setLoadingMore(true)
-    const next = page + 1
-    try { await fetchPage(next, true); setPage(next) } finally { setLoadingMore(false) }
+    setQueryActiva(texto.trim())
   }
 
   return (
@@ -204,7 +206,7 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
           className="input flex-1"
         />
         <label className="flex items-center gap-2 text-sm text-subtle">
-          <input type="checkbox" checked={soloAbiertas} onChange={e => setSoloAbiertas(e.target.checked)} /> Solo abiertas
+          <input type="checkbox" checked={soloAbiertas} onChange={e => { setPage(0); setSoloAbiertas(e.target.checked) }} /> Solo abiertas
         </label>
         <button className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800">Buscar</button>
       </form>
@@ -215,7 +217,7 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
         <Empty title="Sin resultados." hint="Prueba otro término o desactiva «solo abiertas»." />
       ) : (
         <>
-          <p className="mb-3 text-sm text-subtle">{items.length} convocatorias{hasMore ? '+' : ''} (ordenadas por encaje con tu perfil)</p>
+          <p className="mb-3 text-sm text-subtle">{total} convocatorias · página {page + 1} de {totalPages}</p>
           <div className="space-y-4">
             {items.map(c => (
               <AlertCard
@@ -225,20 +227,35 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
               />
             ))}
           </div>
-          {hasMore && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={cargarMas}
-                disabled={loadingMore}
-                className="rounded-lg border border-line bg-white px-5 py-2 text-sm font-medium text-ink hover:border-brand-500 disabled:opacity-50"
-              >
-                {loadingMore ? 'Cargando…' : 'Cargar más'}
-              </button>
-            </div>
-          )}
+          <Paginador page={page} totalPages={totalPages} onChange={setPage} />
         </>
       )}
     </>
+  )
+}
+
+// Paginador numerado con ventana alrededor de la página actual.
+function Paginador({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  if (totalPages <= 1) return null
+  const around = [page - 1, page, page + 1].filter(p => p >= 0 && p < totalPages)
+  const nums = [...new Set([0, ...around, totalPages - 1])].sort((a, b) => a - b)
+  const btn = 'min-w-9 rounded-md border border-line px-3 py-1.5 text-sm transition'
+  return (
+    <nav className="mt-6 flex items-center justify-center gap-1">
+      <button onClick={() => onChange(page - 1)} disabled={page === 0} className={`${btn} disabled:opacity-40`}>‹</button>
+      {nums.map((p, i) => (
+        <span key={p} className="flex items-center">
+          {i > 0 && p - nums[i - 1] > 1 && <span className="px-1 text-subtle">…</span>}
+          <button
+            onClick={() => onChange(p)}
+            className={`${btn} ${p === page ? 'bg-brand-700 font-semibold text-white' : 'text-ink hover:border-brand-500'}`}
+          >
+            {p + 1}
+          </button>
+        </span>
+      ))}
+      <button onClick={() => onChange(page + 1)} disabled={page >= totalPages - 1} className={`${btn} disabled:opacity-40`}>›</button>
+    </nav>
   )
 }
 

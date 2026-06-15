@@ -90,9 +90,12 @@ export function AlertCard({
             <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-danger">❌ Quizá no cumples</span>
           )}
         </div>
-        <div className={`flex shrink-0 flex-col items-center rounded-lg px-3 py-1 ${sc.bg} ${sc.text}`}>
-          <span className="text-lg font-bold leading-none">{alerta.score}</span>
-          <span className="text-[10px] opacity-90">{sc.label}</span>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className="font-mono text-[10px] text-subtle">ID {c.codigoBdns ?? c.id}</span>
+          <div className={`flex flex-col items-center rounded-lg px-3 py-1 ${sc.bg} ${sc.text}`}>
+            <span className="text-lg font-bold leading-none">{alerta.score}</span>
+            <span className="text-[10px] opacity-90">{sc.label}</span>
+          </div>
         </div>
       </div>
 
@@ -185,7 +188,6 @@ export function AlertCard({
             Bases reguladoras
           </a>
         )}
-        <span className="ml-auto text-xs text-subtle">BDNS {c.codigoBdns}</span>
       </div>
 
       {/* Feedback de testers (solo en "Para ti") */}

@@ -57,6 +57,27 @@ export default function ReportesPage() {
   const [reportes, setReportes] = useState<Reporte[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Buscador por ID
+  const [idq, setIdq] = useState('')
+  const [ayuda, setAyuda] = useState<Record<string, unknown> | null>(null)
+  const [buscando, setBuscando] = useState(false)
+  const [errBusqueda, setErrBusqueda] = useState<string | null>(null)
+
+  async function buscarAyuda(e: React.FormEvent) {
+    e.preventDefault()
+    if (!idq.trim()) return
+    setBuscando(true)
+    setErrBusqueda(null)
+    setAyuda(null)
+    try {
+      const data = await api<Record<string, unknown>>(`/api/alerts/convocatoria?id=${encodeURIComponent(idq.trim())}`)
+      setAyuda(data)
+    } catch (err) {
+      setErrBusqueda((err as Error).message)
+    } finally {
+      setBuscando(false)
+    }
+  }
 
   useEffect(() => {
     if (!getToken()) { router.push('/login'); return }
@@ -74,6 +95,26 @@ export default function ReportesPage() {
         <p className="mt-1 text-sm text-subtle">
           Ayudas que un tester marcó como «no encaja con mi perfil». Sirve para afinar el matching.
         </p>
+
+        {/* Buscador por ID: devuelve toda la info guardada de la ayuda */}
+        <form onSubmit={buscarAyuda} className="mt-5 rounded-xl border border-line bg-white p-4 shadow-sm">
+          <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">
+            Buscar ayuda por ID (código BDNS o ID interno)
+          </label>
+          <div className="flex gap-2">
+            <input
+              value={idq}
+              onChange={e => setIdq(e.target.value)}
+              placeholder="p. ej. 873728"
+              className="input flex-1"
+            />
+            <button disabled={buscando} className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-50">
+              {buscando ? 'Buscando…' : 'Buscar'}
+            </button>
+          </div>
+          {errBusqueda && <p className="mt-2 text-sm text-danger">{errBusqueda}</p>}
+          {ayuda && <AyudaDetalle ayuda={ayuda} />}
+        </form>
 
         {error && <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
         {loading ? (
@@ -148,5 +189,32 @@ export default function ReportesPage() {
         )}
       </main>
     </>
+  )
+}
+
+// Muestra TODA la información guardada de una ayuda: campos simples + JSON
+// completo de los objetos (requisitos, payloadRaw con la respuesta nativa BDNS).
+function AyudaDetalle({ ayuda }: { ayuda: Record<string, unknown> }) {
+  const entries = Object.entries(ayuda)
+  const scalars = entries.filter(([, v]) => v === null || typeof v !== 'object')
+  const objects = entries.filter(([, v]) => v !== null && typeof v === 'object')
+  return (
+    <div className="mt-4 rounded-lg border border-line bg-canvas p-3">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-subtle">Toda la información guardada</p>
+      <dl className="grid gap-x-4 sm:grid-cols-2">
+        {scalars.map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-2 border-b border-line/60 py-0.5 text-xs">
+            <dt className="shrink-0 text-subtle">{k}</dt>
+            <dd className="break-all text-right font-medium text-ink">{v === null ? '—' : String(v)}</dd>
+          </div>
+        ))}
+      </dl>
+      {objects.map(([k, v]) => (
+        <details key={k} className="mt-2">
+          <summary className="cursor-pointer text-xs font-semibold text-brand-700">{k} (ver JSON)</summary>
+          <pre className="mt-1 max-h-80 overflow-auto rounded bg-white p-2 text-[11px] text-ink">{JSON.stringify(v, null, 2)}</pre>
+        </details>
+      ))}
+    </div>
   )
 }
