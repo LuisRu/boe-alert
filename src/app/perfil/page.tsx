@@ -87,8 +87,16 @@ export default function PerfilPage() {
       .then(d => { setMe(d); setForm({ ...DEFAULT_PROFILE, ...(d.profile ?? {}) }) })
       .catch(e => setError((e as Error).message))
       .finally(() => setLoading(false))
-    api<string[]>('/api/users/municipios').then(setMunicipios).catch(() => {})
   }, [router])
+
+  // Cargar municipios de la provincia seleccionada (y recargar al cambiarla).
+  useEffect(() => {
+    const nuts = form?.regionNuts
+    if (!nuts) return
+    api<{ nombre: string }[]>(`/api/users/municipios?nuts=${nuts}`)
+      .then(rows => setMunicipios(rows.map(r => r.nombre)))
+      .catch(() => {})
+  }, [form?.regionNuts])
 
   async function save(e: React.FormEvent) {
     e.preventDefault()
