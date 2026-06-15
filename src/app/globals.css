@@ -51,9 +51,16 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: #e2e8f0;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
   }
 }
