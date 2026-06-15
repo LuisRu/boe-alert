@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import { api } from '@/lib/api'
 import {
   type Alerta,
   formatImporte,
@@ -27,9 +29,37 @@ function Meta({ label, value, tone }: { label: string; value: string; tone?: str
   )
 }
 
-export function AlertCard({ alerta, onOpen }: { alerta: Alerta; onOpen: (id: string, url: string) => void }) {
+export function AlertCard({
+  alerta,
+  onOpen,
+  showFeedback = false,
+}: {
+  alerta: Alerta
+  onOpen: (id: string, url: string) => void
+  showFeedback?: boolean
+}) {
   const c = alerta.convocatoria
   const sc = scoreColor(alerta.score)
+  const [fbOpen, setFbOpen] = useState(false)
+  const [fbText, setFbText] = useState('')
+  const [fbSent, setFbSent] = useState(false)
+  const [fbSending, setFbSending] = useState(false)
+
+  async function enviarFeedback() {
+    if (!fbText.trim()) return
+    setFbSending(true)
+    try {
+      await api('/api/alerts/feedback', {
+        method: 'POST',
+        body: JSON.stringify({ convocatoriaId: c.id, motivo: fbText.trim() }),
+      })
+      setFbSent(true)
+    } catch {
+      setFbSent(true) // no bloquear al tester si falla
+    } finally {
+      setFbSending(false)
+    }
+  }
   const dias = diasRestantes(c.fechaFinSol)
   const plazoTone = dias == null ? 'text-ink' : dias < 0 ? 'text-subtle' : dias <= 15 ? 'text-danger' : 'text-plazo'
   const plazoTexto =
@@ -157,6 +187,47 @@ export function AlertCard({ alerta, onOpen }: { alerta: Alerta; onOpen: (id: str
         )}
         <span className="ml-auto text-xs text-subtle">BDNS {c.codigoBdns}</span>
       </div>
+
+      {/* Feedback de testers (solo en "Para ti") */}
+      {showFeedback && (
+        <div className="mt-3 border-t border-dashed border-line pt-3">
+          {fbSent ? (
+            <p className="text-sm text-ok">✓ ¡Gracias! Tu comentario nos ayuda a afinar el matching.</p>
+          ) : !fbOpen ? (
+            <button
+              onClick={() => setFbOpen(true)}
+              className="text-sm font-medium text-plazo hover:underline"
+            >
+              ⚠️ Esto no encaja conmigo
+            </button>
+          ) : (
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">
+                ¿Por qué no debería salirte esta ayuda?
+              </label>
+              <textarea
+                value={fbText}
+                onChange={e => setFbText(e.target.value)}
+                rows={3}
+                placeholder="Ej.: es solo para mayores de 65 y yo tengo 35; o no soy de este sector…"
+                className="w-full rounded-lg border border-line p-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  onClick={enviarFeedback}
+                  disabled={fbSending || !fbText.trim()}
+                  className="rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {fbSending ? 'Enviando…' : 'Enviar comentario'}
+                </button>
+                <button onClick={() => setFbOpen(false)} className="text-sm text-subtle hover:text-ink">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </article>
   )
 }

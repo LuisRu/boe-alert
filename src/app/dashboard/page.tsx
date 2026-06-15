@@ -151,7 +151,7 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
       ) : (
         <>
           <p className="mb-3 text-sm text-subtle">{alerts.length} convocatorias para tu perfil</p>
-          <div className="space-y-4">{alerts.map(a => <AlertCard key={a.id} alerta={a} onOpen={onOpen} />)}</div>
+          <div className="space-y-4">{alerts.map(a => <AlertCard key={a.id} alerta={a} onOpen={onOpen} showFeedback />)}</div>
         </>
       )}
     </>
