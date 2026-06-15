@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api, getToken, PROVINCIAS_GALICIA } from '@/lib/api'
 import { TopNav } from '@/components/TopNav'
+import { Combobox } from '@/components/Combobox'
 
 type UserType = 'AUTONOMO' | 'EMPRESA' | 'BOTH' | 'PARTICULAR'
 
@@ -163,16 +164,12 @@ export default function PerfilPage() {
                 </Field>
                 {esParticular && (
                   <Field label="Municipio (empadronamiento)">
-                    <input
-                      list="municipios-list"
+                    <Combobox
+                      options={municipios}
                       value={form.municipio ?? ''}
-                      onChange={e => set('municipio', e.target.value || null)}
+                      onChange={v => set('municipio', v || null)}
                       placeholder="Escribe y elige tu municipio…"
-                      className="input"
                     />
-                    <datalist id="municipios-list">
-                      {municipios.map(m => <option key={m} value={m} />)}
-                    </datalist>
                   </Field>
                 )}
               </div>
