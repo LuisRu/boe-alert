@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Star, Compass, Search, Inbox } from 'lucide-react'
 import { api, getToken } from '@/lib/api'
@@ -9,14 +9,6 @@ import { AlertCard } from '@/components/AlertCard'
 import type { Alerta, Convocatoria } from '@/lib/format'
 
 type Tab = 'parati' | 'explorar'
-type Estado = 'abiertas' | 'todas' | 'cerradas'
-type Sort = 'score' | 'plazo' | 'reciente'
-
-const SEGMENTS: { value: Estado; label: string }[] = [
-  { value: 'abiertas', label: 'Abiertas' },
-  { value: 'todas', label: 'Todas' },
-  { value: 'cerradas', label: 'Cerradas' },
-]
 
 // Convocatoria del buscador (incluye score/reasons al nivel superior)
 type ConvScored = Convocatoria & { score: number | null; reasons: string[] }
@@ -68,67 +60,35 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [alerts, setAlerts] = useState<Alerta[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [estado, setEstado] = useState<Estado>('abiertas')
-  const [minScore, setMinScore] = useState(0)
-  const [sort, setSort] = useState<Sort>('score')
-  const [desde, setDesde] = useState('')
-  const [hasta, setHasta] = useState('')
 
-  const load = useCallback(async () => {
+  // En "Para ti" no hay filtros: solo lo que encaja con tu perfil y está abierto,
+  // ordenado por mejor encaje. Para filtrar/buscar está la pestaña "Explorar todo".
+  useEffect(() => {
+    let cancel = false
     setLoading(true)
     setError(null)
-    const p = new URLSearchParams({ estado, minScore: String(minScore), sort })
-    if (desde) p.set('fechaFinDesde', desde)
-    if (hasta) p.set('fechaFinHasta', hasta)
-    try {
-      setAlerts(await api<Alerta[]>(`/api/alerts?${p.toString()}`))
-    } catch (e) {
-      setError((e as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }, [estado, minScore, sort, desde, hasta])
-
-  useEffect(() => { load() }, [load])
+    api<Alerta[]>('/api/alerts?estado=abiertas&sort=score')
+      .then(r => { if (!cancel) setAlerts(r) })
+      .catch(e => { if (!cancel) setError((e as Error).message) })
+      .finally(() => { if (!cancel) setLoading(false) })
+    return () => { cancel = true }
+  }, [])
 
   return (
     <>
-      <div className="card mb-5 p-3.5">
-        {/* Estado segmentado */}
-        <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
-          {SEGMENTS.map(s => (
-            <button key={s.value} onClick={() => setEstado(s.value)}
-              className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold transition ${estado === s.value ? 'bg-white text-ink shadow-sm' : 'text-subtle'}`}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-        {/* Filtros */}
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Group label="Puntuación">
-            <select value={minScore} onChange={e => setMinScore(Number(e.target.value))} className="input py-2">
-              <option value={0}>Todas</option><option value={40}>≥ 40</option><option value={50}>≥ 50</option><option value={60}>≥ 60</option>
-            </select>
-          </Group>
-          <Group label="Ordenar">
-            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="input py-2">
-              <option value="score">Mejor encaje</option><option value="plazo">Plazo próximo</option><option value="reciente">Reciente</option>
-            </select>
-          </Group>
-          <Group label="Cierra desde"><input type="date" value={desde} onChange={e => setDesde(e.target.value)} className="input py-2" /></Group>
-          <Group label="Cierra hasta"><input type="date" value={hasta} onChange={e => setHasta(e.target.value)} className="input py-2" /></Group>
-        </div>
-        <p className="mt-3 text-xs text-subtle">Solo ayudas que encajan con tu perfil y que probablemente puedas pedir.</p>
-      </div>
-
       {error && <div className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</div>}
       {loading ? (
         <CardsSkeleton />
       ) : alerts.length === 0 ? (
-        <Empty title="No hay alertas con estos filtros." hint="Amplía el estado, baja la puntuación o completa tu perfil." />
+        <Empty
+          title="Aún no hay ayudas que encajen contigo."
+          hint="Completa o ajusta tu perfil para mejorar los resultados, o pásate a «Explorar todo»."
+        />
       ) : (
         <>
-          <p className="mb-3 text-sm text-subtle">{alerts.length} convocatorias para tu perfil</p>
+          <p className="mb-3 text-sm text-subtle">
+            {alerts.length} {alerts.length === 1 ? 'ayuda abierta que encaja contigo' : 'ayudas abiertas que encajan contigo'}
+          </p>
           <div className="space-y-3.5">{alerts.map(a => <AlertCard key={a.id} alerta={a} onOpen={onOpen} showFeedback />)}</div>
         </>
       )}
@@ -236,15 +196,6 @@ function Paginador({ page, totalPages, onChange }: { page: number; totalPages: n
       ))}
       <button onClick={() => onChange(page + 1)} disabled={page >= totalPages - 1} className={`${btn} disabled:opacity-40`}>›</button>
     </nav>
-  )
-}
-
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">{label}</label>
-      {children}
-    </div>
   )
 }
 
