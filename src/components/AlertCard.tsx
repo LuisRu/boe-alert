@@ -89,7 +89,7 @@ export function AlertCard({
         <div className="mt-3.5 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3">
           <Dato icon={<Coins className="h-4 w-4" />} label="Cuánto" value={formatImporte(c.importeTotal)} />
           <Dato icon={<CalendarClock className="h-4 w-4" />} label="Plazo" value={plazo.txt} tone={plazo.urgente ? 'text-danger' : undefined} />
-          <Dato icon={<Users className="h-4 w-4" />} label="Para quién" value={paraQuien(c.tiposBeneficiario ?? [])} />
+          <Dato icon={<Users className="h-4 w-4" />} label="Para quién" value={c.paraQuien ?? paraQuien(c.tiposBeneficiario ?? [])} />
           <Dato icon={<MapPin className="h-4 w-4" />} label="Dónde" value={donde(c.municipio ?? null, c.nutsCodes ?? [])} />
         </div>
 

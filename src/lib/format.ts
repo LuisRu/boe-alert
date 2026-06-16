@@ -6,6 +6,7 @@ export interface Convocatoria {
   titulo: string
   tituloCooficial: string | null
   aiSummary: string | null
+  paraQuien: string | null
   callToAction: string | null
   organoNivel1: string | null
   organoNivel2: string | null
