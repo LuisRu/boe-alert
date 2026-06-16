@@ -63,14 +63,6 @@ const SECTORES: [string, string][] = [
   ['cultura_creativo', 'Cultura/creativo'], ['deporte', 'Deporte'], ['idi', 'I+D+i'], ['turismo', 'Turismo'],
 ]
 
-const SCORING = [
-  { pts: '+35 / +30 / +20', factor: 'Territorio', detail: 'Provincial / autonómico / nacional según tu provincia.' },
-  { pts: '+25', factor: 'Sector (CNAE)', detail: 'Solo B2B: tu CNAE coincide con el de la convocatoria.' },
-  { pts: '+20', factor: 'Intereses / beneficiario', detail: 'Particular: el tema coincide y va a personas físicas.' },
-  { pts: '+15', factor: 'Palabras clave', detail: 'Una palabra clave aparece en el título o la finalidad.' },
-  { pts: '+5', factor: 'Abierta', detail: 'La convocatoria está en plazo.' },
-]
-
 const DEFAULT_PROFILE: Profile = {
   userType: 'PARTICULAR', comunidadAutonoma: 'Galicia', regionNuts: 'ES111',
   cnae: '', tamanoEmpresa: 'AUTONOMO', esAutonomo: false, formaJuridica: null, empresaNueva: false, areasB2B: [], objetivosB2B: [], keywords: [],
@@ -147,7 +139,7 @@ export default function PerfilPage() {
       <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Mi perfil</h1>
       <p className="mt-0.5 text-sm text-subtle">Cuantos más datos, mejor cruzamos los requisitos de cada convocatoria contigo.</p>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_300px]">
+      <div className="mt-5">
           <form onSubmit={save} className="card space-y-6 p-5 sm:p-6">
             {msg && <div className="rounded-lg bg-emerald-50 p-3 text-sm text-ok">{msg}</div>}
             {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
@@ -309,22 +301,6 @@ export default function PerfilPage() {
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
           </form>
-
-          <aside className="card h-fit p-5 sm:p-6">
-            <h2 className="text-sm font-semibold">Cómo se calcula tu puntuación</h2>
-            <p className="mt-1 text-xs text-subtle">Sumamos puntos por cada coincidencia (0–100). Avisamos a partir de 40.</p>
-            <ul className="mt-4 space-y-3">
-              {SCORING.map(s => (
-                <li key={s.factor} className="text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-ink">{s.factor}</span>
-                    <span className="rounded bg-brand-50 px-1.5 py-0.5 text-xs font-semibold text-brand-700">{s.pts}</span>
-                  </div>
-                  <p className="text-xs text-subtle">{s.detail}</p>
-                </li>
-              ))}
-            </ul>
-          </aside>
         </div>
     </AppShell>
   )
