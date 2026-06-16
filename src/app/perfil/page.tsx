@@ -104,12 +104,13 @@ export default function PerfilPage() {
     if (!form) return
     setSaving(true); setMsg(null); setError(null)
     try {
-      const r = await api<{ alertas: number }>('/api/users/profile', {
+      await api<{ alertas: number }>('/api/users/profile', {
         method: 'PUT',
         body: JSON.stringify({ ...form, cnae: form.cnae || null, esAutonomo: form.userType === 'AUTONOMO' }),
       })
-      setMsg(`Perfil guardado · ${r.alertas} alertas actualizadas en "Para ti".`)
-    } catch (e) { setError((e as Error).message) } finally { setSaving(false) }
+      // Tras guardar, ir directo a las alertas (con el perfil ya re-emparejado).
+      router.push('/dashboard')
+    } catch (e) { setError((e as Error).message); setSaving(false) }
   }
 
   if (loading || !form) return <AppShell><p className="text-subtle">Cargando…</p></AppShell>
