@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { BellRing, Sparkles, MapPin, ShieldCheck } from 'lucide-react'
 import { api, setToken } from '@/lib/api'
 
 export default function LoginPage() {
@@ -13,12 +14,10 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    setError(null)
-    setLoading(true)
+    setError(null); setLoading(true)
     try {
       const { token } = await api<{ token: string }>('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
+        method: 'POST', body: JSON.stringify({ email, password }),
       })
       setToken(token)
       router.push('/dashboard')
@@ -31,58 +30,54 @@ export default function LoginPage() {
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
-      {/* Panel de marca + explicación */}
-      <aside className="hidden flex-col justify-between bg-brand-700 p-12 text-white lg:flex">
+      {/* Panel de marca */}
+      <aside className="relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex"
+        style={{ backgroundImage: 'linear-gradient(150deg,#0f766e 0%,#0d9488 45%,#0b1220 120%)' }}>
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 font-bold">S</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 font-bold backdrop-blur">S</span>
           <span className="text-lg font-semibold">Subvenciona</span>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold leading-tight">Solo las ayudas que te interesan, cada mañana.</h1>
-          <p className="mt-4 text-brand-100">
-            Cruzamos cada convocatoria de la BDNS con tu perfil y te avisamos únicamente de lo que encaja.
-          </p>
-          <div className="mt-8 rounded-xl bg-white/10 p-5">
-            <p className="text-sm font-semibold">Tu puntuación se calcula con:</p>
-            <ul className="mt-2 space-y-1 text-sm text-brand-50">
-              <li>📍 Tu provincia (territorio NUTS)</li>
-              <li>🏷️ Tu CNAE / sector de actividad</li>
-              <li>👤 Tipo de beneficiario (autónomo / pyme)</li>
-              <li>🔑 Tus palabras clave</li>
-              <li>⏳ Que esté en plazo</li>
-            </ul>
-          </div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold leading-[1.1]">Solo las ayudas<br />que te interesan,<br />cada mañana.</h1>
+          <p className="mt-4 max-w-sm text-brand-50/90">Cruzamos cada convocatoria de la BDNS con tu perfil y te avisamos únicamente de lo que encaja.</p>
+          <ul className="mt-8 space-y-3 text-sm">
+            <li className="flex items-center gap-3"><Sparkles className="h-5 w-5" /> Resúmenes claros con IA</li>
+            <li className="flex items-center gap-3"><MapPin className="h-5 w-5" /> Filtrado por territorio, perfil y requisitos</li>
+            <li className="flex items-center gap-3"><BellRing className="h-5 w-5" /> Alertas diarias por email</li>
+          </ul>
         </div>
-        <p className="text-xs text-brand-200">Datos oficiales de la BDNS · Información orientativa, no oficial.</p>
+        <p className="relative z-10 text-xs text-white/60">Datos oficiales de la BDNS · Información orientativa, no oficial.</p>
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-20 right-16 h-56 w-56 rounded-full bg-brand-300/20 blur-3xl" />
       </aside>
 
       {/* Formulario */}
-      <div className="flex flex-col justify-center p-8">
+      <div className="flex flex-col justify-center p-6 sm:p-10">
         <div className="mx-auto w-full max-w-sm">
+          <div className="mb-8 flex items-center gap-2 lg:hidden">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-b from-brand-500 to-brand-700 font-bold text-white">S</span>
+            <span className="text-lg font-bold">Subvenciona</span>
+          </div>
           <h2 className="text-2xl font-bold tracking-tight">Entrar</h2>
           <p className="mt-1 text-sm text-subtle">Accede a tu panel de alertas.</p>
 
-          {error && <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
+          {error && <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</div>}
 
           <form onSubmit={handleLogin} className="mt-6 space-y-4">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">Email</span>
+              <span className="mb-1.5 block text-[13px] font-medium text-ink">Email</span>
               <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="input" />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">Contraseña</span>
+              <span className="mb-1.5 block text-[13px] font-medium text-ink">Contraseña</span>
               <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="input" />
             </label>
-            <button disabled={loading} className="w-full rounded-lg bg-brand-700 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:opacity-50">
-              {loading ? 'Entrando…' : 'Entrar'}
-            </button>
+            <button disabled={loading} className="btn-primary w-full py-3">{loading ? 'Entrando…' : 'Entrar'}</button>
           </form>
 
-          <p className="mt-4 text-sm text-subtle">
-            ¿No tienes cuenta? <a href="/register" className="font-medium text-brand-700 hover:underline">Regístrate</a>
-          </p>
-          <p className="mt-6 rounded-lg bg-canvas p-3 text-xs text-subtle">
-            Demo: <strong>demo@boealert.es</strong> / <strong>test12345</strong> (ya rellenado)
+          <p className="mt-5 text-sm text-subtle">¿No tienes cuenta? <a href="/register" className="font-semibold text-brand-700 hover:underline">Regístrate</a></p>
+          <p className="mt-6 flex items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs text-subtle">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-brand-600" /> Demo: <strong className="text-ink">demo@boealert.es</strong> / <strong className="text-ink">test12345</strong>
           </p>
         </div>
       </div>

@@ -93,18 +93,18 @@ export default function RegisterPage() {
           <input
             type="email" required placeholder="Email" value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full rounded border p-2"
+            className="input"
           />
           <input
             type="password" required minLength={8} placeholder="Contraseña (mín. 8)" value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full rounded border p-2"
+            className="input"
           />
           <label className="flex items-start gap-2 text-sm text-gray-600">
             <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required />
             Acepto la política de privacidad y el tratamiento de mis datos (RGPD).
           </label>
-          <button disabled={loading} className="w-full rounded bg-blue-600 p-2 text-white disabled:opacity-50">
+          <button disabled={loading} className="btn-primary w-full py-3">
             Continuar
           </button>
         </form>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
       {step === 2 && (
         <form onSubmit={handleStep2} className="space-y-4">
           <label className="block text-sm font-medium">¿Qué eres?</label>
-          <select value={userType} onChange={e => setUserType(e.target.value as typeof userType)} className="w-full rounded border p-2">
+          <select value={userType} onChange={e => setUserType(e.target.value as typeof userType)} className="input">
             <option value="PARTICULAR">Particular (persona física)</option>
             <option value="AUTONOMO">Autónomo</option>
             <option value="EMPRESA">Empresa</option>
@@ -121,7 +121,7 @@ export default function RegisterPage() {
           </select>
 
           <label className="block text-sm font-medium">Provincia</label>
-          <select value={regionNuts} onChange={e => setRegionNuts(e.target.value)} className="w-full rounded border p-2">
+          <select value={regionNuts} onChange={e => setRegionNuts(e.target.value)} className="input">
             {PROVINCIAS_GALICIA.map(p => (
               <option key={p.nuts} value={p.nuts}>{p.nombre}</option>
             ))}
@@ -130,14 +130,14 @@ export default function RegisterPage() {
           <input
             placeholder="CNAE (opcional, p.ej. 88.9)" value={cnae}
             onChange={e => setCnae(e.target.value)}
-            className="w-full rounded border p-2"
+            className="input"
           />
           <input
             placeholder="Palabras clave separadas por comas" value={keywords}
             onChange={e => setKeywords(e.target.value)}
-            className="w-full rounded border p-2"
+            className="input"
           />
-          <button disabled={loading} className="w-full rounded bg-blue-600 p-2 text-white disabled:opacity-50">
+          <button disabled={loading} className="btn-primary w-full py-3">
             Continuar al pago
           </button>
         </form>
@@ -146,11 +146,11 @@ export default function RegisterPage() {
       {step === 3 && (
         <div className="space-y-4">
           <p className="text-sm text-gray-600">Elige tu plan. No se cobra hasta el final del trial de 14 días.</p>
-          <button disabled={loading} onClick={() => handleCheckout('PRO')} className="w-full rounded border p-4 text-left hover:border-blue-600">
+          <button disabled={loading} onClick={() => handleCheckout('PRO')} className="card w-full p-4 text-left transition hover:border-brand-400">
             <strong>Pro · 9,99 €/mes</strong>
             <p className="text-sm text-gray-500">Autónomos y personas físicas</p>
           </button>
-          <button disabled={loading} onClick={() => handleCheckout('BUSINESS')} className="w-full rounded border p-4 text-left hover:border-blue-600">
+          <button disabled={loading} onClick={() => handleCheckout('BUSINESS')} className="card w-full p-4 text-left transition hover:border-brand-400">
             <strong>Business · 49 €/mes</strong>
             <p className="text-sm text-gray-500">Empresas</p>
           </button>

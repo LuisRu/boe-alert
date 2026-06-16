@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api, getToken } from '@/lib/api'
-import { TopNav } from '@/components/TopNav'
+import { AppShell } from '@/components/AppShell'
 
 interface Reporte {
   id: string
@@ -88,16 +88,14 @@ export default function ReportesPage() {
   }, [router])
 
   return (
-    <>
-      <TopNav />
-      <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight">Reportes de testers</h1>
-        <p className="mt-1 text-sm text-subtle">
+    <AppShell>
+        <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Reportes de testers</h1>
+        <p className="mt-0.5 text-sm text-subtle">
           Ayudas que un tester marcó como «no encaja con mi perfil». Sirve para afinar el matching.
         </p>
 
         {/* Buscador por ID: devuelve toda la info guardada de la ayuda */}
-        <form onSubmit={buscarAyuda} className="mt-5 rounded-xl border border-line bg-white p-4 shadow-sm">
+        <form onSubmit={buscarAyuda} className="card mt-5 p-4">
           <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">
             Buscar ayuda por ID (código BDNS o ID interno)
           </label>
@@ -108,7 +106,7 @@ export default function ReportesPage() {
               placeholder="p. ej. 873728"
               className="input flex-1"
             />
-            <button disabled={buscando} className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-50">
+            <button disabled={buscando} className="btn-primary">
               {buscando ? 'Buscando…' : 'Buscar'}
             </button>
           </div>
@@ -129,7 +127,7 @@ export default function ReportesPage() {
             <p className="mb-3 mt-6 text-sm text-subtle">{reportes.length} reportes</p>
             <div className="space-y-4">
               {reportes.map(r => (
-                <article key={r.id} className="rounded-xl border border-line bg-white p-5 shadow-sm">
+                <article key={r.id} className="card p-5">
                   {/* Cabecera: fecha + puntuación que tenía */}
                   <div className="mb-3 flex items-center justify-between text-xs text-subtle">
                     <span>{new Date(r.createdAt).toLocaleString('es-ES')}</span>
@@ -187,8 +185,7 @@ export default function ReportesPage() {
             </div>
           </>
         )}
-      </main>
-    </>
+    </AppShell>
   )
 }
 

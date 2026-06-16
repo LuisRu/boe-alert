@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Star, Compass, Search, Inbox } from 'lucide-react'
 import { api, getToken } from '@/lib/api'
-import { TopNav } from '@/components/TopNav'
+import { AppShell } from '@/components/AppShell'
 import { AlertCard } from '@/components/AlertCard'
 import type { Alerta, Convocatoria } from '@/lib/format'
 
@@ -34,38 +35,30 @@ export default function DashboardPage() {
   }
 
   return (
-    <>
-      <TopNav />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-5">
-          <h1 className="text-2xl font-bold tracking-tight">Ayudas y subvenciones</h1>
-          <p className="mt-1 text-sm text-subtle">Lo que encaja contigo, y todo el catálogo para explorar.</p>
-        </div>
+    <AppShell>
+      <div className="mb-4">
+        <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Ayudas y subvenciones</h1>
+        <p className="mt-0.5 text-sm text-subtle">Lo que encaja contigo, y todo el catálogo para explorar.</p>
+      </div>
 
-        {/* Pestañas */}
-        <div className="mb-6 inline-flex rounded-lg border border-line bg-white p-0.5">
-          <button
-            onClick={() => setTab('parati')}
-            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === 'parati' ? 'bg-brand-700 text-white' : 'text-subtle hover:text-ink'}`}
-          >
-            ⭐ Para ti
-          </button>
-          <button
-            onClick={() => setTab('explorar')}
-            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === 'explorar' ? 'bg-brand-700 text-white' : 'text-subtle hover:text-ink'}`}
-          >
-            🔎 Explorar todo
-          </button>
-        </div>
+      {/* Pestañas segmentadas */}
+      <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl border border-line bg-white p-1 sm:inline-flex">
+        <button onClick={() => setTab('parati')}
+          className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition ${tab === 'parati' ? 'bg-gradient-to-b from-brand-500 to-brand-700 text-white shadow-sm' : 'text-subtle hover:text-ink'}`}>
+          <Star className="h-4 w-4" /> Para ti
+        </button>
+        <button onClick={() => setTab('explorar')}
+          className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition ${tab === 'explorar' ? 'bg-gradient-to-b from-brand-500 to-brand-700 text-white shadow-sm' : 'text-subtle hover:text-ink'}`}>
+          <Compass className="h-4 w-4" /> Explorar todo
+        </button>
+      </div>
 
-        {tab === 'parati' ? <ParaTi onOpen={markOpened} /> : <Explorar onOpen={markOpened} />}
+      {tab === 'parati' ? <ParaTi onOpen={markOpened} /> : <Explorar onOpen={markOpened} />}
 
-        <p className="mt-10 text-xs text-subtle">
-          Subvenciona no es una fuente oficial. La información es orientativa; verifica siempre la vigencia y los
-          requisitos en la fuente oficial enlazada (BDNS).
-        </p>
-      </main>
-    </>
+      <p className="mt-8 text-xs text-subtle">
+        Subvenciona no es una fuente oficial. La información es orientativa; verifica siempre en la fuente oficial (BDNS).
+      </p>
+    </AppShell>
   )
 }
 
@@ -100,53 +93,43 @@ function ParaTi({ onOpen }: { onOpen: (id: string, url: string) => void }) {
 
   return (
     <>
-      <div className="mb-6 rounded-xl border border-line bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-end gap-4">
-          <Group label="Estado">
-            <div className="inline-flex rounded-lg border border-line p-0.5">
-              {SEGMENTS.map(s => (
-                <button key={s.value} onClick={() => setEstado(s.value)}
-                  className={`rounded-md px-3 py-1 text-sm font-medium transition ${estado === s.value ? 'bg-brand-700 text-white' : 'text-subtle hover:text-ink'}`}>
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </Group>
-          <Group label="Puntuación mínima">
-            <select value={minScore} onChange={e => setMinScore(Number(e.target.value))} className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm">
-              <option value={0}>Todas</option>
-              <option value={40}>≥ 40 (medio)</option>
-              <option value={50}>≥ 50 (bueno)</option>
-              <option value={60}>≥ 60 (alto)</option>
-            </select>
-          </Group>
-          <Group label="Ordenar por">
-            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm">
-              <option value="score">Mejor encaje</option>
-              <option value="plazo">Plazo más próximo</option>
-              <option value="reciente">Más reciente</option>
-            </select>
-          </Group>
-          <Group label="Cierra entre">
-            <div className="flex items-center gap-2">
-              <input type="date" value={desde} onChange={e => setDesde(e.target.value)} className="rounded-lg border border-line px-2 py-1.5 text-sm" />
-              <span className="text-subtle">–</span>
-              <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} className="rounded-lg border border-line px-2 py-1.5 text-sm" />
-            </div>
-          </Group>
+      <div className="card mb-5 p-3.5">
+        {/* Estado segmentado */}
+        <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
+          {SEGMENTS.map(s => (
+            <button key={s.value} onClick={() => setEstado(s.value)}
+              className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold transition ${estado === s.value ? 'bg-white text-ink shadow-sm' : 'text-subtle'}`}>
+              {s.label}
+            </button>
+          ))}
         </div>
-        <p className="mt-3 text-xs text-subtle">Solo te mostramos ayudas que encajan con tu perfil y que probablemente puedas pedir.</p>
+        {/* Filtros */}
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Group label="Puntuación">
+            <select value={minScore} onChange={e => setMinScore(Number(e.target.value))} className="input py-2">
+              <option value={0}>Todas</option><option value={40}>≥ 40</option><option value={50}>≥ 50</option><option value={60}>≥ 60</option>
+            </select>
+          </Group>
+          <Group label="Ordenar">
+            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="input py-2">
+              <option value="score">Mejor encaje</option><option value="plazo">Plazo próximo</option><option value="reciente">Reciente</option>
+            </select>
+          </Group>
+          <Group label="Cierra desde"><input type="date" value={desde} onChange={e => setDesde(e.target.value)} className="input py-2" /></Group>
+          <Group label="Cierra hasta"><input type="date" value={hasta} onChange={e => setHasta(e.target.value)} className="input py-2" /></Group>
+        </div>
+        <p className="mt-3 text-xs text-subtle">Solo ayudas que encajan con tu perfil y que probablemente puedas pedir.</p>
       </div>
 
-      {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
+      {error && <div className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</div>}
       {loading ? (
-        <p className="text-subtle">Cargando…</p>
+        <CardsSkeleton />
       ) : alerts.length === 0 ? (
-        <Empty title="No hay alertas con estos filtros." hint="Amplía el estado o baja la puntuación mínima, o completa tu perfil." />
+        <Empty title="No hay alertas con estos filtros." hint="Amplía el estado, baja la puntuación o completa tu perfil." />
       ) : (
         <>
           <p className="mb-3 text-sm text-subtle">{alerts.length} convocatorias para tu perfil</p>
-          <div className="space-y-4">{alerts.map(a => <AlertCard key={a.id} alerta={a} onOpen={onOpen} showFeedback />)}</div>
+          <div className="space-y-3.5">{alerts.map(a => <AlertCard key={a.id} alerta={a} onOpen={onOpen} showFeedback />)}</div>
         </>
       )}
     </>
@@ -196,29 +179,28 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
 
   return (
     <>
-      <form
-        onSubmit={e => { e.preventDefault(); buscar() }}
-        className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4 shadow-sm"
-      >
-        <input
-          value={texto} onChange={e => setTexto(e.target.value)}
-          placeholder="Buscar por título o tema (vivienda, empleo, cultura…)"
-          className="input flex-1"
-        />
-        <label className="flex items-center gap-2 text-sm text-subtle">
-          <input type="checkbox" checked={soloAbiertas} onChange={e => { setPage(0); setSoloAbiertas(e.target.checked) }} /> Solo abiertas
-        </label>
-        <button className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800">Buscar</button>
+      <form onSubmit={e => { e.preventDefault(); buscar() }} className="card mb-5 p-3.5">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input value={texto} onChange={e => setTexto(e.target.value)}
+            placeholder="Buscar por título o tema (vivienda, empleo, cultura…)" className="input pl-9" />
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm text-subtle">
+            <input type="checkbox" checked={soloAbiertas} onChange={e => { setPage(0); setSoloAbiertas(e.target.checked) }} /> Solo abiertas
+          </label>
+          <button className="btn-primary px-5">Buscar</button>
+        </div>
       </form>
 
       {loading ? (
-        <p className="text-subtle">Cargando…</p>
+        <CardsSkeleton />
       ) : items.length === 0 ? (
         <Empty title="Sin resultados." hint="Prueba otro término o desactiva «solo abiertas»." />
       ) : (
         <>
           <p className="mb-3 text-sm text-subtle">{total} convocatorias · página {page + 1} de {totalPages}</p>
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {items.map(c => (
               <AlertCard
                 key={c.id}
@@ -239,17 +221,15 @@ function Paginador({ page, totalPages, onChange }: { page: number; totalPages: n
   if (totalPages <= 1) return null
   const around = [page - 1, page, page + 1].filter(p => p >= 0 && p < totalPages)
   const nums = [...new Set([0, ...around, totalPages - 1])].sort((a, b) => a - b)
-  const btn = 'min-w-9 rounded-md border border-line px-3 py-1.5 text-sm transition'
+  const btn = 'min-w-9 rounded-lg border border-line px-3 py-2 text-sm transition'
   return (
     <nav className="mt-6 flex items-center justify-center gap-1">
       <button onClick={() => onChange(page - 1)} disabled={page === 0} className={`${btn} disabled:opacity-40`}>‹</button>
       {nums.map((p, i) => (
         <span key={p} className="flex items-center">
           {i > 0 && p - nums[i - 1] > 1 && <span className="px-1 text-subtle">…</span>}
-          <button
-            onClick={() => onChange(p)}
-            className={`${btn} ${p === page ? 'bg-brand-700 font-semibold text-white' : 'text-ink hover:border-brand-500'}`}
-          >
+          <button onClick={() => onChange(p)}
+            className={`${btn} ${p === page ? 'border-transparent bg-gradient-to-b from-brand-500 to-brand-700 font-semibold text-white' : 'text-ink hover:border-brand-400'}`}>
             {p + 1}
           </button>
         </span>
@@ -270,9 +250,28 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
 
 function Empty({ title, hint }: { title: string; hint: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-line bg-white p-10 text-center">
-      <p className="text-ink">{title}</p>
+    <div className="card flex flex-col items-center p-10 text-center">
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100"><Inbox className="h-6 w-6 text-subtle" /></div>
+      <p className="font-medium text-ink">{title}</p>
       <p className="mt-1 text-sm text-subtle">{hint}</p>
+    </div>
+  )
+}
+
+function CardsSkeleton() {
+  return (
+    <div className="space-y-3.5">
+      {[0, 1, 2].map(i => (
+        <div key={i} className="card p-5">
+          <div className="mb-3 flex justify-between">
+            <div className="h-5 w-24 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-10 w-12 animate-pulse rounded-xl bg-slate-100" />
+          </div>
+          <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
+          <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-slate-100" />
+          <div className="mt-4 h-16 animate-pulse rounded-xl bg-slate-50" />
+        </div>
+      ))}
     </div>
   )
 }

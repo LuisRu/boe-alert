@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api, getToken, PROVINCIAS_GALICIA } from '@/lib/api'
-import { TopNav } from '@/components/TopNav'
+import { AppShell } from '@/components/AppShell'
 import { Combobox } from '@/components/Combobox'
 
 type UserType = 'AUTONOMO' | 'EMPRESA' | 'BOTH' | 'PARTICULAR'
@@ -114,7 +114,7 @@ export default function PerfilPage() {
     } catch (e) { setError((e as Error).message) } finally { setSaving(false) }
   }
 
-  if (loading || !form) return <><TopNav /><main className="mx-auto max-w-5xl px-4 py-8 text-subtle">Cargando…</main></>
+  if (loading || !form) return <AppShell><p className="text-subtle">Cargando…</p></AppShell>
 
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => setForm({ ...form, [k]: v })
   const toggle = (k: 'intereses' | 'sectoresActividad', v: string) =>
@@ -137,14 +137,12 @@ export default function PerfilPage() {
   )
 
   return (
-    <>
-      <TopNav />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight">Mi perfil</h1>
-        <p className="mt-1 text-sm text-subtle">Cuantos más datos, mejor cruzamos los requisitos de cada convocatoria contigo.</p>
+    <AppShell>
+      <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Mi perfil</h1>
+      <p className="mt-0.5 text-sm text-subtle">Cuantos más datos, mejor cruzamos los requisitos de cada convocatoria contigo.</p>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
-          <form onSubmit={save} className="space-y-6 rounded-xl border border-line bg-white p-6 shadow-sm">
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_300px]">
+          <form onSubmit={save} className="card space-y-6 p-5 sm:p-6">
             {msg && <div className="rounded-lg bg-emerald-50 p-3 text-sm text-ok">{msg}</div>}
             {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-danger">{error}</div>}
 
@@ -278,12 +276,12 @@ export default function PerfilPage() {
               <input value={form.keywords.join(', ')} onChange={e => set('keywords', e.target.value.split(',').map(k => k.trim()).filter(Boolean))} placeholder="rehabilitación, kit digital, beca" className="input" />
             </Section>
 
-            <button disabled={saving} className="rounded-lg bg-brand-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:opacity-50">
+            <button disabled={saving} className="btn-primary px-6">
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
           </form>
 
-          <aside className="h-fit rounded-xl border border-line bg-white p-6 shadow-sm">
+          <aside className="card h-fit p-5 sm:p-6">
             <h2 className="text-sm font-semibold">Cómo se calcula tu puntuación</h2>
             <p className="mt-1 text-xs text-subtle">Sumamos puntos por cada coincidencia (0–100). Avisamos a partir de 40.</p>
             <ul className="mt-4 space-y-3">
@@ -299,8 +297,7 @@ export default function PerfilPage() {
             </ul>
           </aside>
         </div>
-      </main>
-    </>
+    </AppShell>
   )
 }
 
