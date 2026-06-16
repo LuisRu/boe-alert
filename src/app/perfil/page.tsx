@@ -46,9 +46,11 @@ interface Me {
 }
 
 const INTERESES: [string, string][] = [
-  ['vivienda', 'Vivienda / rehabilitación'], ['empleo', 'Empleo'], ['formacion', 'Formación / educación'],
-  ['familia', 'Familia / social'], ['salud', 'Salud / dependencia'], ['cultura', 'Cultura'],
-  ['vehiculo', 'Vehículo / movilidad'], ['agrario', 'Agrario / rural'], ['comercio', 'Comercio'], ['deporte', 'Deporte'],
+  ['vivienda', 'Vivienda / rehabilitación'], ['empleo', 'Empleo'], ['formacion', 'Formación / educación / becas'],
+  ['familia', 'Familia / servicios sociales'], ['salud', 'Salud / dependencia'], ['cultura', 'Cultura'],
+  ['deporte', 'Deporte'], ['agrario', 'Agrario / pesca / rural'], ['comercio', 'Comercio / turismo / emprender'],
+  ['vehiculo', 'Vehículo / movilidad'], ['idi', 'I+D+i / innovación'], ['energia', 'Energía / sostenibilidad'],
+  ['cooperacion', 'Cooperación / voluntariado'],
 ]
 const SECTORES: [string, string][] = [
   ['agrario', 'Agrario/ganadero'], ['pesquero', 'Pesquero'], ['comercio', 'Comercio/hostelería'],
@@ -118,6 +120,21 @@ export default function PerfilPage() {
   const toggle = (k: 'intereses' | 'sectoresActividad', v: string) =>
     set(k, form[k].includes(v) ? form[k].filter(x => x !== v) : [...form[k], v])
   const esParticular = form.userType === 'PARTICULAR'
+
+  // Grupo de chips para campos booleanos (estilo "selección múltiple").
+  const boolChips = (items: [keyof Profile, string][]) => (
+    <div className="flex flex-wrap gap-2">
+      {items.map(([field, label]) => {
+        const on = !!form[field]
+        return (
+          <button type="button" key={String(field)} onClick={() => set(field, !on as never)}
+            className={`rounded-full px-3 py-1 text-sm transition ${on ? 'bg-brand-700 text-white' : 'border border-line text-subtle hover:text-ink'}`}>
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
 
   return (
     <>
@@ -198,54 +215,62 @@ export default function PerfilPage() {
                         <option value="">—</option><option value="MUJER">Mujer</option><option value="HOMBRE">Hombre</option><option value="OTRO">Otro</option>
                       </select>
                     </Field>
-                    <Field label="Situación laboral">
-                      <select value={form.situacionLaboral ?? ''} onChange={e => set('situacionLaboral', e.target.value || null)} className="input">
-                        <option value="">—</option><option value="TRABAJA">Trabaja</option><option value="DESEMPLEADO">Desempleado/a</option>
-                        <option value="ESTUDIANTE">Estudiante</option><option value="EMPRENDEDOR">Emprendedor/a</option><option value="JUBILADO">Jubilado/a</option><option value="OTRO">Otro</option>
+                    <Field label="Estado civil">
+                      <select value={form.estadoCivil ?? ''} onChange={e => set('estadoCivil', e.target.value || null)} className="input">
+                        <option value="">—</option><option value="SOLTERO">Soltero/a</option><option value="CASADO">Casado/a</option><option value="PAREJA">Pareja de hecho</option><option value="OTRO">Otro</option>
                       </select>
                     </Field>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-                    <Check label="Tengo hijos" v={form.tieneHijos} on={v => set('tieneHijos', v)} />
-                    <Check label="Familia numerosa" v={form.familiaNumerosa} on={v => set('familiaNumerosa', v)} />
-                    <Check label="Familia monoparental" v={form.monoparental} on={v => set('monoparental', v)} />
-                    <Check label="Discapacidad" v={form.discapacidad} on={v => set('discapacidad', v)} />
-                    <Check label="Migrante / refugiado" v={form.migranteRefugiado} on={v => set('migranteRefugiado', v)} />
-                    <Check label="Víctima violencia de género" v={form.victimaViolencia} on={v => set('victimaViolencia', v)} />
-                  </div>
+                </Section>
+
+                <Section title="Situación laboral">
+                  <Field label="¿En qué situación estás?">
+                    <select value={form.situacionLaboral ?? ''} onChange={e => set('situacionLaboral', e.target.value || null)} className="input sm:max-w-xs">
+                      <option value="">—</option><option value="TRABAJA">Trabaja por cuenta ajena</option><option value="DESEMPLEADO">Desempleado/a</option>
+                      <option value="ESTUDIANTE">Estudiante</option><option value="EMPRENDEDOR">Emprendedor/a / autónomo</option><option value="JUBILADO">Jubilado/a</option><option value="OTRO">Otro</option>
+                    </select>
+                  </Field>
+                </Section>
+
+                <Section title="Situación familiar">
+                  {boolChips([['tieneHijos', 'Tengo hijos'], ['familiaNumerosa', 'Familia numerosa'], ['monoparental', 'Familia monoparental']])}
                 </Section>
 
                 <Section title="Situación económica" hint="Clave para ayudas de servicios sociales y emergencia.">
-                  <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    <Check label="En vulnerabilidad económica" v={form.vulnerabilidadEconomica} on={v => set('vulnerabilidadEconomica', v)} />
-                    <Check label="Vulnerabilidad energética / Bono Social" v={form.vulnerabilidadEnergetica} on={v => set('vulnerabilidadEnergetica', v)} />
-                    <Check label="Percibo prestaciones/ayudas" v={form.perceptorPrestaciones} on={v => set('perceptorPrestaciones', v)} />
-                    <Check label="Rentas bajas" v={form.rentaBaja} on={v => set('rentaBaja', v)} />
-                  </div>
+                  {boolChips([
+                    ['vulnerabilidadEconomica', 'Vulnerabilidad económica'],
+                    ['vulnerabilidadEnergetica', 'Vulnerabilidad energética / Bono Social'],
+                    ['perceptorPrestaciones', 'Percibo prestaciones'],
+                    ['rentaBaja', 'Rentas bajas'],
+                  ])}
                 </Section>
 
-                <Section title="Vivienda">
+                <Section title="Otras circunstancias" hint="Datos sensibles (RGPD): solo se usan para tus alertas.">
+                  {boolChips([
+                    ['discapacidad', 'Discapacidad'],
+                    ['migranteRefugiado', 'Migrante / refugiado'],
+                    ['victimaViolencia', 'Víctima de violencia de género'],
+                  ])}
+                </Section>
+
+                <Section title="Vivienda y movilidad">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Tenencia de vivienda">
                       <select value={form.tenenciaVivienda ?? ''} onChange={e => set('tenenciaVivienda', e.target.value || null)} className="input">
                         <option value="">—</option><option value="PROPIETARIO">Propietario/a</option><option value="INQUILINO">Inquilino/a</option><option value="NINGUNA">Ninguna</option>
                       </select>
                     </Field>
-                    <div className="flex items-end"><Check label="Tengo vehículo" v={!!form.tieneVehiculo} on={v => set('tieneVehiculo', v)} /></div>
+                    <Field label="Vehículo">{boolChips([['tieneVehiculo', 'Tengo vehículo']])}</Field>
                   </div>
                 </Section>
 
-                <Section title="Temas que te interesan">
+                <Section title="Temas que te interesan" hint="Lo que más afina tus alertas.">
                   <Chips opts={INTERESES} sel={form.intereses} onToggle={v => toggle('intereses', v)} />
                 </Section>
 
-                <Section title="¿Desarrollas alguna actividad económica? Sectores" hint="Para ayudas sectoriales (agrario, pesca, cultura, I+D+i…).">
+                <Section title="¿Desarrollas alguna actividad económica?" hint="Solo si aplica: para ayudas sectoriales (agrario, pesca, cultura, I+D+i…).">
                   <Chips opts={SECTORES} sel={form.sectoresActividad} onToggle={v => toggle('sectoresActividad', v)} />
                 </Section>
-
-                <p className="rounded-lg bg-canvas p-2 text-xs text-subtle">
-                  Estos datos no se publican en la BDNS: los usamos para cruzar los requisitos que la IA lee de las bases y decirte si <em>probablemente</em> cumples. Datos como discapacidad o víctima de violencia son sensibles (RGPD) y solo se usan para tus alertas.
-                </p>
               </>
             )}
 
@@ -290,9 +315,6 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 }
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="block"><span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">{label}</span>{children}</label>
-}
-function Check({ label, v, on }: { label: string; v: boolean; on: (v: boolean) => void }) {
-  return <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={v} onChange={e => on(e.target.checked)} /> {label}</label>
 }
 function Chips({ opts, sel, onToggle }: { opts: [string, string][]; sel: string[]; onToggle: (v: string) => void }) {
   return (
