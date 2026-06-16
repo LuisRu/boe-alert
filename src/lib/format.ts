@@ -16,6 +16,7 @@ export interface Convocatoria {
   fechaRecepcion: string | null
   fechaInicioSol: string | null
   fechaFinSol: string | null
+  plazoTexto: string | null
   abierta: boolean
   esMrr: boolean
   nutsCodes: string[]

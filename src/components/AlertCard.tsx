@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import {
-  Building2, Coins, CalendarClock, ExternalLink, FileText, Sparkles,
+  Building2, Coins, CalendarClock, CalendarDays, ExternalLink, FileText, Sparkles,
   CheckCircle2, XCircle, HelpCircle, TriangleAlert, X,
 } from 'lucide-react'
 import { api } from '@/lib/api'
@@ -89,8 +89,15 @@ export function AlertCard({
         <span className="inline-flex items-center gap-1.5 text-ink"><Coins className="h-4 w-4 text-subtle" /> {formatImporte(c.importeTotal)}</span>
         <span className={`inline-flex items-center gap-1.5 ${plazoUrgente ? 'font-semibold text-danger' : 'text-ink'}`}>
           <CalendarClock className="h-4 w-4 text-subtle" />
-          {c.fechaFinSol ? `${formatFecha(c.fechaFinSol)}${dias != null && dias >= 0 ? ` · ${dias}d` : ''}` : 'Sin fecha de cierre'}
+          {c.fechaFinSol
+            ? `Cierra ${formatFecha(c.fechaFinSol)}${dias != null && dias >= 0 ? ` · ${dias}d` : ''}`
+            : c.plazoTexto
+              ? `Plazo: ${c.plazoTexto}`
+              : 'Plazo abierto · ver bases'}
         </span>
+        {c.fechaRecepcion && (
+          <span className="inline-flex items-center gap-1.5 text-subtle"><CalendarDays className="h-4 w-4" /> Publicada {formatFecha(c.fechaRecepcion)}</span>
+        )}
       </div>
 
       {/* Etiquetas */}
