@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { api, setToken, PROVINCIAS_GALICIA } from '@/lib/api'
+import { CnaeSelect } from '@/components/CnaeSelect'
 
 // Onboarding en 3 pasos: cuenta → perfil B2B → pago (Stripe Checkout, trial 14d).
 
@@ -127,10 +128,10 @@ export default function RegisterPage() {
             ))}
           </select>
 
-          <input
-            placeholder="CNAE (opcional, p.ej. 88.9)" value={cnae}
-            onChange={e => setCnae(e.target.value)}
-            className="input"
+          <CnaeSelect
+            value={cnae || null}
+            onChange={code => setCnae(code ?? '')}
+            placeholder="Actividad / CNAE (opcional): busca p.ej. comercio, hostelería"
           />
           <input
             placeholder="Palabras clave separadas por comas" value={keywords}

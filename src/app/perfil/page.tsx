@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { api, getToken, PROVINCIAS_GALICIA } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { Combobox } from '@/components/Combobox'
+import { CnaeSelect } from '@/components/CnaeSelect'
 
 type UserType = 'AUTONOMO' | 'EMPRESA' | 'BOTH' | 'PARTICULAR'
 
@@ -198,7 +199,13 @@ export default function PerfilPage() {
                       <option value="AUTONOMO">Autónomo</option><option value="MICRO">Micro</option><option value="PEQUENA">Pequeña</option><option value="MEDIANA">Mediana</option>
                     </select>
                   </Field>
-                  <Field label="CNAE"><input value={form.cnae ?? ''} onChange={e => set('cnae', e.target.value)} placeholder="88.9" className="input" /></Field>
+                  <Field label="Actividad (CNAE)">
+                    <CnaeSelect
+                      value={form.cnae}
+                      onChange={code => set('cnae', code)}
+                      placeholder="Busca tu actividad (p.ej. comercio, hostelería, I+D)"
+                    />
+                  </Field>
                 </div>
               </Section>
             )}
