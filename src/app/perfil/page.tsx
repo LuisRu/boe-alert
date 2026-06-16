@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { api, getToken, PROVINCIAS_GALICIA } from '@/lib/api'
+import { api, getToken, CCAA_PROVINCIAS } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { Combobox } from '@/components/Combobox'
 import { CnaeSelect } from '@/components/CnaeSelect'
@@ -173,7 +173,11 @@ export default function PerfilPage() {
                 </Field>
                 <Field label="Provincia">
                   <select value={form.regionNuts} onChange={e => set('regionNuts', e.target.value)} className="input">
-                    {PROVINCIAS_GALICIA.map(p => <option key={p.nuts} value={p.nuts}>{p.nombre} ({p.nuts})</option>)}
+                    {CCAA_PROVINCIAS.map(g => (
+                      <optgroup key={g.ccaa} label={g.ccaa}>
+                        {g.provincias.map(p => <option key={p.nuts} value={p.nuts}>{p.nombre}</option>)}
+                      </optgroup>
+                    ))}
                   </select>
                 </Field>
                 {esParticular && (

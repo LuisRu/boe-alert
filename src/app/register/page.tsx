@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { api, setToken, PROVINCIAS_GALICIA } from '@/lib/api'
+import { api, setToken, CCAA_PROVINCIAS } from '@/lib/api'
 import { CnaeSelect } from '@/components/CnaeSelect'
 
 // Onboarding en 3 pasos: cuenta → perfil B2B → pago (Stripe Checkout, trial 14d).
@@ -123,8 +123,10 @@ export default function RegisterPage() {
 
           <label className="block text-sm font-medium">Provincia</label>
           <select value={regionNuts} onChange={e => setRegionNuts(e.target.value)} className="input">
-            {PROVINCIAS_GALICIA.map(p => (
-              <option key={p.nuts} value={p.nuts}>{p.nombre}</option>
+            {CCAA_PROVINCIAS.map(g => (
+              <optgroup key={g.ccaa} label={g.ccaa}>
+                {g.provincias.map(p => <option key={p.nuts} value={p.nuts}>{p.nombre}</option>)}
+              </optgroup>
             ))}
           </select>
 
