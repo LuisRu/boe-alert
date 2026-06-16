@@ -6,6 +6,7 @@ import { api, getToken, PROVINCIAS_GALICIA } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { Combobox } from '@/components/Combobox'
 import { CnaeSelect } from '@/components/CnaeSelect'
+import { AREAS_B2B, OBJETIVOS_B2B, FORMA_JURIDICA } from '@/lib/b2b'
 
 type UserType = 'AUTONOMO' | 'EMPRESA' | 'BOTH' | 'PARTICULAR'
 
@@ -14,8 +15,12 @@ interface Profile {
   comunidadAutonoma: string
   regionNuts: string
   cnae: string | null
-  tamanoEmpresa: 'AUTONOMO' | 'MICRO' | 'PEQUENA' | 'MEDIANA'
+  tamanoEmpresa: 'AUTONOMO' | 'MICRO' | 'PEQUENA' | 'MEDIANA' | 'GRANDE'
   esAutonomo: boolean
+  formaJuridica: string | null
+  empresaNueva: boolean
+  areasB2B: string[]
+  objetivosB2B: string[]
   keywords: string[]
   // Particular
   edad: number | null
@@ -68,7 +73,7 @@ const SCORING = [
 
 const DEFAULT_PROFILE: Profile = {
   userType: 'PARTICULAR', comunidadAutonoma: 'Galicia', regionNuts: 'ES111',
-  cnae: '', tamanoEmpresa: 'AUTONOMO', esAutonomo: false, keywords: [],
+  cnae: '', tamanoEmpresa: 'AUTONOMO', esAutonomo: false, formaJuridica: null, empresaNueva: false, areasB2B: [], objetivosB2B: [], keywords: [],
   edad: null, genero: null, situacionLaboral: null, tieneHijos: false, familiaNumerosa: false,
   monoparental: false, estadoCivil: null, discapacidad: false, migranteRefugiado: false, victimaViolencia: false,
   vulnerabilidadEconomica: false, vulnerabilidadEnergetica: false, perceptorPrestaciones: false, rentaBaja: false,
@@ -118,7 +123,7 @@ export default function PerfilPage() {
   if (loading || !form) return <AppShell><p className="text-subtle">Cargando…</p></AppShell>
 
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => setForm({ ...form, [k]: v })
-  const toggle = (k: 'intereses' | 'sectoresActividad', v: string) =>
+  const toggle = (k: 'intereses' | 'sectoresActividad' | 'areasB2B' | 'objetivosB2B', v: string) =>
     set(k, form[k].includes(v) ? form[k].filter(x => x !== v) : [...form[k], v])
   const esParticular = form.userType === 'PARTICULAR'
 
@@ -192,22 +197,39 @@ export default function PerfilPage() {
             </Section>
 
             {!esParticular && (
-              <Section title="Actividad (B2B)">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Tamaño">
-                    <select value={form.tamanoEmpresa} onChange={e => set('tamanoEmpresa', e.target.value as Profile['tamanoEmpresa'])} className="input">
-                      <option value="AUTONOMO">Autónomo</option><option value="MICRO">Micro</option><option value="PEQUENA">Pequeña</option><option value="MEDIANA">Mediana</option>
-                    </select>
-                  </Field>
-                  <Field label="Actividad (CNAE)">
-                    <CnaeSelect
-                      value={form.cnae}
-                      onChange={code => set('cnae', code)}
-                      placeholder="Busca tu actividad (p.ej. comercio, hostelería, I+D)"
-                    />
-                  </Field>
-                </div>
-              </Section>
+              <>
+                <Section title="Tu actividad (B2B)">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Forma jurídica">
+                      <select value={form.formaJuridica ?? ''} onChange={e => set('formaJuridica', e.target.value || null)} className="input">
+                        <option value="">—</option>
+                        {FORMA_JURIDICA.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                      </select>
+                    </Field>
+                    <Field label="Tamaño">
+                      <select value={form.tamanoEmpresa} onChange={e => set('tamanoEmpresa', e.target.value as Profile['tamanoEmpresa'])} className="input">
+                        <option value="AUTONOMO">Autónomo</option><option value="MICRO">Micro</option><option value="PEQUENA">Pequeña</option><option value="MEDIANA">Mediana</option><option value="GRANDE">Gran empresa</option>
+                      </select>
+                    </Field>
+                    <Field label="Actividad (CNAE)">
+                      <CnaeSelect
+                        value={form.cnae}
+                        onChange={code => set('cnae', code)}
+                        placeholder="Busca tu actividad (p.ej. comercio, hostelería, I+D)"
+                      />
+                    </Field>
+                  </div>
+                  <div className="mt-2">{boolChips([['empresaNueva', 'Empresa de reciente creación / emprendo']])}</div>
+                </Section>
+
+                <Section title="Sector de actividad" hint="¿A qué se dedica tu negocio? Afina mucho el encaje.">
+                  <Chips opts={AREAS_B2B} sel={form.areasB2B} onToggle={v => toggle('areasB2B', v)} />
+                </Section>
+
+                <Section title="Objetivos" hint="¿Qué buscas? (digitalizar, exportar, contratar, I+D…).">
+                  <Chips opts={OBJETIVOS_B2B} sel={form.objetivosB2B} onToggle={v => toggle('objetivosB2B', v)} />
+                </Section>
+              </>
             )}
 
             {esParticular && (
