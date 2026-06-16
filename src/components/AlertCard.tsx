@@ -18,7 +18,7 @@ function plazoLabel(c: Alerta['convocatoria']): { txt: string; urgente: boolean 
     return { txt: `Hasta ${formatFecha(c.fechaFinSol)}${dias != null && dias >= 0 ? ` · ${dias} días` : ''}`, urgente }
   }
   if (c.plazoTexto) return { txt: c.plazoTexto, urgente: false }
-  return { txt: 'Abierto · ver bases', urgente: false }
+  return { txt: 'Sin fecha fija', urgente: false }
 }
 
 function Dato({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone?: string }) {
