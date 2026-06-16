@@ -9,6 +9,14 @@ import { AlertCard } from '@/components/AlertCard'
 import type { Alerta, Convocatoria } from '@/lib/format'
 
 type Tab = 'parati' | 'explorar'
+type Estado = 'abiertas' | 'todas' | 'cerradas'
+type Sort = 'score' | 'plazo' | 'reciente'
+
+const SEGMENTS: { value: Estado; label: string }[] = [
+  { value: 'abiertas', label: 'Abiertas' },
+  { value: 'todas', label: 'Todas' },
+  { value: 'cerradas', label: 'Cerradas' },
+]
 
 // Convocatoria del buscador (incluye score/reasons al nivel superior)
 type ConvScored = Convocatoria & { score: number | null; reasons: string[] }
@@ -112,15 +120,25 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
   const [texto, setTexto] = useState('')
-  const [soloAbiertas, setSoloAbiertas] = useState(true)
   // Texto efectivo de búsqueda (solo cambia al pulsar Buscar, no al teclear).
   const [queryActiva, setQueryActiva] = useState('')
+  // Filtros (mismos que tenía "Para ti").
+  const [estado, setEstado] = useState<Estado>('abiertas')
+  const [minScore, setMinScore] = useState(0)
+  const [sort, setSort] = useState<Sort>('score')
+  const [desde, setDesde] = useState('')
+  const [hasta, setHasta] = useState('')
+
+  // Cualquier cambio de filtro vuelve a la primera página.
+  useEffect(() => { setPage(0) }, [estado, minScore, sort, desde, hasta, queryActiva])
 
   useEffect(() => {
     let cancel = false
     setLoading(true)
-    const params = new URLSearchParams({ soloAbiertas: String(soloAbiertas), page: String(page) })
+    const params = new URLSearchParams({ estado, minScore: String(minScore), sort, page: String(page) })
     if (queryActiva) params.set('texto', queryActiva)
+    if (desde) params.set('fechaFinDesde', desde)
+    if (hasta) params.set('fechaFinHasta', hasta)
     api<BuscarResp>(`/api/alerts/buscar?${params.toString()}`)
       .then(r => {
         if (cancel) return
@@ -130,10 +148,9 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
       })
       .finally(() => !cancel && setLoading(false))
     return () => { cancel = true }
-  }, [page, queryActiva, soloAbiertas])
+  }, [page, queryActiva, estado, minScore, sort, desde, hasta])
 
   function buscar() {
-    setPage(0)
     setQueryActiva(texto.trim())
   }
 
@@ -145,10 +162,34 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
           <input value={texto} onChange={e => setTexto(e.target.value)}
             placeholder="Buscar por título o tema (vivienda, empleo, cultura…)" className="input pl-9" />
         </div>
-        <div className="mt-3 flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-subtle">
-            <input type="checkbox" checked={soloAbiertas} onChange={e => { setPage(0); setSoloAbiertas(e.target.checked) }} /> Solo abiertas
-          </label>
+
+        {/* Estado segmentado */}
+        <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
+          {SEGMENTS.map(s => (
+            <button key={s.value} type="button" onClick={() => setEstado(s.value)}
+              className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold transition ${estado === s.value ? 'bg-white text-ink shadow-sm' : 'text-subtle'}`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Filtros */}
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Group label="Puntuación">
+            <select value={minScore} onChange={e => setMinScore(Number(e.target.value))} className="input py-2">
+              <option value={0}>Todas</option><option value={40}>≥ 40</option><option value={50}>≥ 50</option><option value={60}>≥ 60</option>
+            </select>
+          </Group>
+          <Group label="Ordenar">
+            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="input py-2">
+              <option value="score">Mejor encaje</option><option value="plazo">Plazo próximo</option><option value="reciente">Reciente</option>
+            </select>
+          </Group>
+          <Group label="Cierra desde"><input type="date" value={desde} onChange={e => setDesde(e.target.value)} className="input py-2" /></Group>
+          <Group label="Cierra hasta"><input type="date" value={hasta} onChange={e => setHasta(e.target.value)} className="input py-2" /></Group>
+        </div>
+
+        <div className="mt-3 flex justify-end">
           <button className="btn-primary px-5">Buscar</button>
         </div>
       </form>
@@ -156,7 +197,7 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
       {loading ? (
         <CardsSkeleton />
       ) : items.length === 0 ? (
-        <Empty title="Sin resultados." hint="Prueba otro término o desactiva «solo abiertas»." />
+        <Empty title="Sin resultados." hint="Prueba otro término, cambia el estado o baja la puntuación." />
       ) : (
         <>
           <p className="mb-3 text-sm text-subtle">{total} convocatorias · página {page + 1} de {totalPages}</p>
@@ -196,6 +237,15 @@ function Paginador({ page, totalPages, onChange }: { page: number; totalPages: n
       ))}
       <button onClick={() => onChange(page + 1)} disabled={page >= totalPages - 1} className={`${btn} disabled:opacity-40`}>›</button>
     </nav>
+  )
+}
+
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-subtle">{label}</label>
+      {children}
+    </div>
   )
 }
 
