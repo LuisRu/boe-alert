@@ -17,6 +17,7 @@ export interface Convocatoria {
   fechaInicioSol: string | null
   fechaFinSol: string | null
   plazoTexto: string | null
+  municipio: string | null
   abierta: boolean
   esMrr: boolean
   nutsCodes: string[]
@@ -76,6 +77,31 @@ export function tipoAdminLabel(t: string | null): string {
     default:
       return 'Otra'
   }
+}
+
+// "Para quién" en lenguaje sencillo (traduce la jerga de tiposBeneficiario).
+export function paraQuien(tipos: string[]): string {
+  if (!tipos || tipos.length === 0) return 'Cualquiera'
+  const j = tipos.join(' | ').toUpperCase()
+  const out: string[] = []
+  if (j.includes('FÍSICA') && j.includes('NO DESARROLLAN')) out.push('Particulares')
+  if (j.includes('PYME') || (j.includes('FÍSICA') && j.includes('QUE DESARROLLAN'))) out.push('Autónomos y pymes')
+  if (j.includes('JURÍDICA')) out.push('Asociaciones y entidades')
+  if (j.includes('GRAN EMPRESA')) out.push('Grandes empresas')
+  return out.length ? [...new Set(out)].join(' · ') : tipos[0]
+}
+
+const NUTS_NOMBRE: Record<string, string> = {
+  ES11: 'Galicia', ES111: 'A Coruña', ES112: 'Lugo', ES113: 'Ourense', ES114: 'Pontevedra', ES: 'Toda España',
+}
+
+// "Dónde" en lenguaje sencillo (municipio o provincia/CCAA/España).
+export function donde(municipio: string | null, nutsCodes: string[]): string {
+  if (municipio) return municipio
+  if (!nutsCodes || nutsCodes.length === 0) return 'Toda España'
+  const sorted = [...nutsCodes].sort((a, b) => b.length - a.length)
+  for (const code of sorted) if (NUTS_NOMBRE[code]) return NUTS_NOMBRE[code]
+  return sorted[0]
 }
 
 // Color del chip de puntuación según rango.
