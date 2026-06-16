@@ -34,11 +34,13 @@ function Dato({ icon, label, value, tone }: { icon: React.ReactNode; label: stri
 }
 
 export function AlertCard({
-  alerta, onOpen, showFeedback = false,
+  alerta, onOpen, showFeedback = false, showStatus = true,
 }: {
   alerta: Alerta
   onOpen: (id: string, url: string) => void
   showFeedback?: boolean
+  // En "Para ti" se oculta (todas encajan y están abiertas por definición).
+  showStatus?: boolean
 }) {
   const c = alerta.convocatoria
   const plazo = plazoLabel(c)
@@ -63,13 +65,15 @@ export function AlertCard({
   return (
     <article className="card animate-in overflow-hidden">
       <div className="p-4 sm:p-5">
-        {/* Estado + veredicto */}
-        <div className="mb-2 flex items-center justify-between gap-2">
-          {c.abierta
-            ? <span className="pill bg-emerald-50 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> Abierta</span>
-            : <span className="pill bg-slate-100 text-subtle">Cerrada</span>}
-          <span className={`pill ${verdict.cls}`}>{verdict.txt}</span>
-        </div>
+        {/* Estado + veredicto (oculto en "Para ti": todas encajan y están abiertas) */}
+        {showStatus && (
+          <div className="mb-2 flex items-center justify-between gap-2">
+            {c.abierta
+              ? <span className="pill bg-emerald-50 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> Abierta</span>
+              : <span className="pill bg-slate-100 text-subtle">Cerrada</span>}
+            <span className={`pill ${verdict.cls}`}>{verdict.txt}</span>
+          </div>
+        )}
 
         {/* Qué es: titular claro (resumen IA) + nombre oficial pequeño */}
         {c.aiSummary ? (
