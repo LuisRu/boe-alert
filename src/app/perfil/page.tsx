@@ -6,6 +6,7 @@ import { api, getToken, CCAA_PROVINCIAS } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { Combobox } from '@/components/Combobox'
 import { CnaeSelect } from '@/components/CnaeSelect'
+import { CpvSelect } from '@/components/CpvSelect'
 import { AREAS_B2B, OBJETIVOS_B2B, FORMA_JURIDICA } from '@/lib/b2b'
 
 type UserType = 'AUTONOMO' | 'EMPRESA' | 'BOTH' | 'PARTICULAR'
@@ -22,6 +23,11 @@ interface Profile {
   areasB2B: string[]
   objetivosB2B: string[]
   keywords: string[]
+  // Licitaciones / concursos públicos (B2B)
+  wantsLicitaciones: boolean
+  cpvCodes: string[]
+  presupuestoMin: number | null
+  presupuestoMax: number | null
   // Particular
   edad: number | null
   genero: string | null
@@ -66,6 +72,7 @@ const SECTORES: [string, string][] = [
 const DEFAULT_PROFILE: Profile = {
   userType: 'PARTICULAR', comunidadAutonoma: 'Galicia', regionNuts: 'ES111',
   cnae: '', tamanoEmpresa: 'AUTONOMO', esAutonomo: false, formaJuridica: null, empresaNueva: false, areasB2B: [], objetivosB2B: [], keywords: [],
+  wantsLicitaciones: false, cpvCodes: [], presupuestoMin: null, presupuestoMax: null,
   edad: null, genero: null, situacionLaboral: null, tieneHijos: false, familiaNumerosa: false,
   monoparental: false, estadoCivil: null, discapacidad: false, migranteRefugiado: false, victimaViolencia: false,
   vulnerabilidadEconomica: false, vulnerabilidadEnergetica: false, perceptorPrestaciones: false, rentaBaja: false,
@@ -225,6 +232,25 @@ export default function PerfilPage() {
 
                 <Section title="Objetivos" hint="¿Qué buscas? (digitalizar, exportar, contratar, I+D…).">
                   <Chips opts={OBJETIVOS_B2B} sel={form.objetivosB2B} onToggle={v => toggle('objetivosB2B', v)} />
+                </Section>
+
+                <Section title="Concursos públicos (licitaciones)" hint="Contratos de la Administración. Indica tus sectores (CPV) y el rango de presupuesto que te interesa.">
+                  {boolChips([['wantsLicitaciones', 'Quiero ver concursos públicos']])}
+                  {form.wantsLicitaciones && (
+                    <div className="mt-3 space-y-3">
+                      <Field label="Sectores (CPV)">
+                        <CpvSelect value={form.cpvCodes} onChange={codes => set('cpvCodes', codes)} />
+                      </Field>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <Field label="Presupuesto mínimo (€)">
+                          <input type="number" min={0} value={form.presupuestoMin ?? ''} onChange={e => set('presupuestoMin', e.target.value ? Number(e.target.value) : null)} placeholder="Sin mínimo" className="input" />
+                        </Field>
+                        <Field label="Presupuesto máximo (€)">
+                          <input type="number" min={0} value={form.presupuestoMax ?? ''} onChange={e => set('presupuestoMax', e.target.value ? Number(e.target.value) : null)} placeholder="Sin máximo" className="input" />
+                        </Field>
+                      </div>
+                    </div>
+                  )}
                 </Section>
               </>
             )}

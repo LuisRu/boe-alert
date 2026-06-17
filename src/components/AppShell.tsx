@@ -1,11 +1,12 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Flag, User, LogOut } from 'lucide-react'
+import { Bell, Gavel, Flag, User, LogOut } from 'lucide-react'
 import { clearToken } from '@/lib/api'
 
 const TABS = [
-  { href: '/dashboard', label: 'Alertas', icon: Bell },
+  { href: '/dashboard', label: 'Ayudas', icon: Bell },
+  { href: '/concursos', label: 'Concursos', icon: Gavel },
   { href: '/reportes', label: 'Reportes', icon: Flag },
   { href: '/perfil', label: 'Perfil', icon: User },
 ]
