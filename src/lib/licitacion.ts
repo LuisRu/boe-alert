@@ -3,7 +3,8 @@
 export interface Licitacion {
   id: string
   expediente: string
-  source: string
+  referencia: string | null // expediente legible (PLACSP); en TED se usa expediente
+  source: string // TED | PLACSP
   tipoAnuncio: string | null // "competition" (abierta) | "result" (adjudicada)
   titulo: string
   comprador: string | null

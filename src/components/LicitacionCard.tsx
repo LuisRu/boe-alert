@@ -80,7 +80,7 @@ export function LicitacionCard({
             ? <Dato icon={<Award className="h-4 w-4" />} label="Adjudicado a" value={ganadores || '—'} />
             : <Dato icon={<CalendarClock className="h-4 w-4" />} label="Plazo" value={plazo.txt} tone={plazo.urgente ? 'text-danger' : undefined} />}
           <Dato icon={<Tag className="h-4 w-4" />} label="CPV / sector" value={familias(lic.cpvCodes)} />
-          <Dato icon={<Hash className="h-4 w-4" />} label="Expediente" value={lic.expediente} />
+          <Dato icon={<Hash className="h-4 w-4" />} label="Expediente" value={lic.referencia ?? lic.expediente} />
           {/* Ministerio / organismo a ancho completo (suele ser largo) */}
           <div className="col-span-2">
             <Dato icon={<Building2 className="h-4 w-4" />} label="Ministerio / organismo" value={lic.comprador ?? '—'} />
