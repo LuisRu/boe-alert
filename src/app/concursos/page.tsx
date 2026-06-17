@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Star, Compass, Search, Inbox, Gavel, Building2 } from 'lucide-react'
+import { Star, Compass, Search, Inbox, Gavel } from 'lucide-react'
 import { api, getToken } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { LicitacionCard } from '@/components/LicitacionCard'
+import { Combobox } from '@/components/Combobox'
 import { CPV_DIVISIONES } from '@/lib/cpv'
 import type { Licitacion, LicitacionFeed, LicitacionBuscar } from '@/lib/licitacion'
 
@@ -123,6 +124,19 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [sort, setSort] = useState<Sort>('score')
   const [organismo, setOrganismo] = useState('')
   const [organismoActivo, setOrganismoActivo] = useState('')
+  const [organismos, setOrganismos] = useState<string[]>([])
+
+  // Lista de organismos/ministerios reales para el selector con buscador.
+  useEffect(() => {
+    api<string[]>('/api/licitaciones/organismos').then(setOrganismos).catch(() => {})
+  }, [])
+
+  // Al elegir una opción del selector (o limpiar) se aplica al instante; el texto
+  // libre se aplica al pulsar Buscar.
+  function cambiarOrganismo(v: string) {
+    setOrganismo(v)
+    if (v === '' || organismos.includes(v)) setOrganismoActivo(v)
+  }
 
   useEffect(() => { setPage(0) }, [estado, sort, cpv, queryActiva, organismoActivo])
 
@@ -154,10 +168,11 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
             placeholder="Buscar por objeto o nº de expediente" className="input pl-9" />
         </div>
 
-        <div className="mt-3 relative">
-          <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input value={organismo} onChange={e => setOrganismo(e.target.value)}
-            placeholder="Filtrar por ministerio / organismo (p.ej. Sanidad, Ayuntamiento de…)" className="input pl-9" />
+        <div className="mt-3">
+          <Group label="Ministerio / organismo">
+            <Combobox options={organismos} value={organismo} onChange={cambiarOrganismo}
+              placeholder="Elige o escribe un organismo (Sanidad, Ayuntamiento de…)" />
+          </Group>
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
