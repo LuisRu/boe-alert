@@ -36,7 +36,7 @@ export default function Landing() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-canvas text-ink">
+    <main className="min-h-screen overflow-x-clip bg-canvas text-ink">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       {/* ─── HERO (oscuro, malla teal + grano) ─── */}
@@ -64,7 +64,7 @@ export default function Landing() {
             <p className="fu d1 mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[13px] text-brand-200">
               <ShieldCheck className="h-3.5 w-3.5" /> Datos oficiales de la BDNS · toda España
             </p>
-            <h1 className="fu d2 text-[2.6rem] font-medium leading-[1.04] tracking-[-0.02em] sm:text-6xl" style={{ fontFamily: 'var(--font-display)' }}>
+            <h1 className="fu d2 text-[2.1rem] font-medium leading-[1.06] tracking-[-0.02em] [text-wrap:balance] sm:text-6xl" style={{ fontFamily: 'var(--font-display)' }}>
               Las ayudas que te tocan,
               <span className="italic text-brand-300"> sin leerte el boletín.</span>
             </h1>

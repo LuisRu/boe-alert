@@ -32,11 +32,14 @@
   }
   html {
     -webkit-text-size-adjust: 100%;
+    overflow-x: clip; /* evita scroll/zoom horizontal en móvil; sticky-safe (no rompe el header pegajoso) */
   }
   body {
     background-color: #f7f8fa;
     color: #0b1220;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: clip;
+    max-width: 100%;
   }
   /* Encabezados con la tipografía display (look editorial, coherente con la landing) */
   h1, h2, h3 {
