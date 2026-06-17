@@ -20,6 +20,9 @@ const SEGMENTS: { value: Estado; label: string }[] = [
   { value: 'todas', label: 'Todos' },
 ]
 
+// Opciones del selector CPV: "código · nombre" (buscable por número o por texto).
+const CPV_OPCIONES = CPV_DIVISIONES.map(d => `${d.code} · ${d.label}`)
+
 export default function ConcursosPage() {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('parati')
@@ -119,7 +122,8 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [planError, setPlanError] = useState(false)
   const [texto, setTexto] = useState('')
   const [queryActiva, setQueryActiva] = useState('')
-  const [cpv, setCpv] = useState('')
+  const [cpv, setCpv] = useState('') // código aplicado (familia 2 dígitos)
+  const [cpvText, setCpvText] = useState('') // lo que se muestra en el selector
   const [estado, setEstado] = useState<Estado>('abiertas')
   const [sort, setSort] = useState<Sort>('score')
   const [organismo, setOrganismo] = useState('')
@@ -136,6 +140,14 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   function cambiarOrganismo(v: string) {
     setOrganismo(v)
     if (v === '' || organismos.includes(v)) setOrganismoActivo(v)
+  }
+
+  // CPV: acepta número (código) o nombre. Tomamos los dígitos → familia (2 cifras).
+  function cambiarCpv(v: string) {
+    setCpvText(v)
+    const dig = v.replace(/\D/g, '')
+    if (v === '') setCpv('')
+    else if (dig.length >= 2) setCpv(dig.slice(0, 2))
   }
 
   useEffect(() => { setPage(0) }, [estado, sort, cpv, queryActiva, organismoActivo])
@@ -185,11 +197,9 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-3">
-          <Group label="Sector (CPV)">
-            <select value={cpv} onChange={e => setCpv(e.target.value)} className="input py-2">
-              <option value="">Todos</option>
-              {CPV_DIVISIONES.map(d => <option key={d.code} value={d.code}>{d.label}</option>)}
-            </select>
+          <Group label="Sector / CPV (nombre o número)">
+            <Combobox options={CPV_OPCIONES} value={cpvText} onChange={cambiarCpv}
+              placeholder="Elige o escribe (software, 45, 72212…)" />
           </Group>
           <Group label="Ordenar">
             <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="input py-2">
