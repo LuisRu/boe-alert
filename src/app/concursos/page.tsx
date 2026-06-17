@@ -142,12 +142,13 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
     if (v === '' || organismos.includes(v)) setOrganismoActivo(v)
   }
 
-  // CPV: acepta número (código) o nombre. Tomamos los dígitos → familia (2 cifras).
+  // CPV: acepta número (código completo o familia) o nombre. Enviamos los dígitos
+  // tal cual; el backend filtra por prefijo (79 = familia, 79530000 = traducciones).
   function cambiarCpv(v: string) {
     setCpvText(v)
     const dig = v.replace(/\D/g, '')
     if (v === '') setCpv('')
-    else if (dig.length >= 2) setCpv(dig.slice(0, 2))
+    else if (dig.length >= 2) setCpv(dig)
   }
 
   useEffect(() => { setPage(0) }, [estado, sort, cpv, queryActiva, organismoActivo])
