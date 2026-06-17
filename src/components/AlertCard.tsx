@@ -4,11 +4,21 @@ import { useState } from 'react'
 import {
   Coins, CalendarClock, Users, MapPin, ArrowRight, FileText, Sparkles,
   CheckCircle2, XCircle, HelpCircle, TriangleAlert, X, ChevronDown,
+  HandCoins, Gavel, Landmark, Building2,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import {
   type Alerta, formatImporte, formatFecha, diasRestantes, paraQuien, donde,
 } from '@/lib/format'
+
+// Clasificación por tipo de oportunidad. Hoy todo es SUBVENCION; preparado para
+// LICITACION (concursos públicos) y SUBASTA cuando lleguen esos módulos.
+export type TipoOportunidad = 'SUBVENCION' | 'LICITACION' | 'SUBASTA'
+const TIPO_META: Record<TipoOportunidad, { label: string; cls: string; icon: React.ReactNode }> = {
+  SUBVENCION: { label: 'Subvención', cls: 'bg-brand-50 text-brand-700', icon: <HandCoins className="h-3 w-3" /> },
+  LICITACION: { label: 'Licitación', cls: 'bg-indigo-50 text-indigo-700', icon: <Gavel className="h-3 w-3" /> },
+  SUBASTA: { label: 'Subasta', cls: 'bg-amber-50 text-plazo', icon: <Landmark className="h-3 w-3" /> },
+}
 
 // Etiqueta de plazo en lenguaje claro.
 function plazoLabel(c: Alerta['convocatoria']): { txt: string; urgente: boolean } {
@@ -34,15 +44,18 @@ function Dato({ icon, label, value, tone }: { icon: React.ReactNode; label: stri
 }
 
 export function AlertCard({
-  alerta, onOpen, showFeedback = false, showStatus = true,
+  alerta, onOpen, showFeedback = false, showStatus = true, tipo = 'SUBVENCION',
 }: {
   alerta: Alerta
   onOpen: (id: string, url: string) => void
   showFeedback?: boolean
   // En "Para ti" se oculta (todas encajan y están abiertas por definición).
   showStatus?: boolean
+  tipo?: TipoOportunidad
 }) {
   const c = alerta.convocatoria
+  const tipoMeta = TIPO_META[tipo]
+  const organo = c.organoNivel2 || c.organoNivel1 || null
   const plazo = plazoLabel(c)
   const [open, setOpen] = useState(false)
   const [fbOpen, setFbOpen] = useState(false)
@@ -65,15 +78,18 @@ export function AlertCard({
   return (
     <article className="card animate-in overflow-hidden">
       <div className="p-4 sm:p-5">
-        {/* Estado + veredicto (oculto en "Para ti": todas encajan y están abiertas) */}
-        {showStatus && (
-          <div className="mb-2 flex items-center justify-between gap-2">
-            {c.abierta
-              ? <span className="pill bg-emerald-50 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> Abierta</span>
-              : <span className="pill bg-slate-100 text-subtle">Cerrada</span>}
-            <span className={`pill ${verdict.cls}`}>{verdict.txt}</span>
-          </div>
-        )}
+        {/* Tipo (siempre) + estado/veredicto (solo en Explorar) */}
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className={`pill ${tipoMeta.cls}`}>{tipoMeta.icon} {tipoMeta.label}</span>
+          {showStatus && (
+            <div className="flex items-center gap-2">
+              {c.abierta
+                ? <span className="pill bg-emerald-50 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> Abierta</span>
+                : <span className="pill bg-slate-100 text-subtle">Cerrada</span>}
+              <span className={`pill ${verdict.cls}`}>{verdict.txt}</span>
+            </div>
+          )}
+        </div>
 
         {/* Qué es: titular claro (resumen IA) + nombre oficial pequeño */}
         {c.aiSummary ? (
@@ -132,6 +148,12 @@ export function AlertCard({
                 ))}
               </ul>
             </div>
+          )}
+
+          {organo && (
+            <p className="flex items-start gap-1.5 text-[13px] text-subtle">
+              <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Convoca: <span className="text-ink">{organo}</span>
+            </p>
           )}
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">

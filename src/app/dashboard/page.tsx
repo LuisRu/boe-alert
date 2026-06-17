@@ -160,7 +160,7 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input value={texto} onChange={e => setTexto(e.target.value)}
-            placeholder="Buscar por título o tema (vivienda, empleo, cultura…)" className="input pl-9" />
+            placeholder="Buscar por título, tema u organismo (vivienda, empleo, Ministerio…)" className="input pl-9" />
         </div>
 
         {/* Estado segmentado */}
