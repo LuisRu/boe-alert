@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import {
-  Coins, CalendarClock, Tag, MapPin, ArrowRight, FileText, Sparkles,
+  Coins, CalendarClock, Tag, ArrowRight, FileText, Sparkles, Hash,
   Building2, ChevronDown, Gavel, CheckCircle2, Trophy, Award,
 } from 'lucide-react'
 import { type Licitacion } from '@/lib/licitacion'
 import { cpvLabel } from '@/lib/cpv'
-import { formatImporte, formatFecha, diasRestantes, donde } from '@/lib/format'
+import { formatImporte, formatFecha, diasRestantes } from '@/lib/format'
 
 function Dato({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone?: string }) {
   return (
@@ -79,8 +79,12 @@ export function LicitacionCard({
           {esAdjudicada
             ? <Dato icon={<Award className="h-4 w-4" />} label="Adjudicado a" value={ganadores || '—'} />
             : <Dato icon={<CalendarClock className="h-4 w-4" />} label="Plazo" value={plazo.txt} tone={plazo.urgente ? 'text-danger' : undefined} />}
-          <Dato icon={<Tag className="h-4 w-4" />} label="Sector" value={familias(lic.cpvCodes)} />
-          <Dato icon={<MapPin className="h-4 w-4" />} label="Dónde" value={donde(null, lic.nutsCodes)} />
+          <Dato icon={<Tag className="h-4 w-4" />} label="CPV / sector" value={familias(lic.cpvCodes)} />
+          <Dato icon={<Hash className="h-4 w-4" />} label="Expediente" value={lic.expediente} />
+          {/* Ministerio / organismo a ancho completo (suele ser largo) */}
+          <div className="col-span-2">
+            <Dato icon={<Building2 className="h-4 w-4" />} label="Ministerio / organismo" value={lic.comprador ?? '—'} />
+          </div>
         </div>
 
         <div className="mt-4 flex items-center gap-2">
@@ -108,16 +112,12 @@ export function LicitacionCard({
             </div>
           )}
 
-          {lic.comprador && (
-            <p className="flex items-start gap-1.5 text-[13px] text-subtle">
-              <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Convoca: <span className="text-ink">{lic.comprador}</span>
-            </p>
+          {/* Dónde (territorio) — el ministerio y el expediente ya están en la tarjeta */}
+          {lic.urlPliego && (
+            <div className="text-[13px]">
+              <a href={lic.urlPliego} target="_blank" rel="noopener" className="text-subtle hover:text-ink">Pliego oficial (PDF)</a>
+            </div>
           )}
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
-            {lic.urlPliego && <a href={lic.urlPliego} target="_blank" rel="noopener" className="text-subtle hover:text-ink">Pliego oficial (PDF)</a>}
-            <span className="ml-auto font-mono text-[10px] text-slate-400">Expediente {lic.expediente}</span>
-          </div>
 
           {lic.reasons && lic.reasons.length > 0 && (
             <div className="border-t border-dashed border-line pt-3">

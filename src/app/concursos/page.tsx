@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Star, Compass, Search, Inbox, Gavel } from 'lucide-react'
+import { Star, Compass, Search, Inbox, Gavel, Building2 } from 'lucide-react'
 import { api, getToken } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { LicitacionCard } from '@/components/LicitacionCard'
@@ -121,8 +121,10 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
   const [cpv, setCpv] = useState('')
   const [estado, setEstado] = useState<Estado>('abiertas')
   const [sort, setSort] = useState<Sort>('score')
+  const [organismo, setOrganismo] = useState('')
+  const [organismoActivo, setOrganismoActivo] = useState('')
 
-  useEffect(() => { setPage(0) }, [estado, sort, cpv, queryActiva])
+  useEffect(() => { setPage(0) }, [estado, sort, cpv, queryActiva, organismoActivo])
 
   useEffect(() => {
     let cancel = false
@@ -130,6 +132,7 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
     const params = new URLSearchParams({ estado, sort, page: String(page) })
     if (queryActiva) params.set('texto', queryActiva)
     if (cpv) params.set('cpv', cpv)
+    if (organismoActivo) params.set('organismo', organismoActivo)
     api<LicitacionBuscar>(`/api/licitaciones/buscar?${params.toString()}`)
       .then(r => {
         if (cancel) return
@@ -138,17 +141,23 @@ function Explorar({ onOpen }: { onOpen: (id: string, url: string) => void }) {
       .catch(e => { if (!cancel && (e as Error).message.includes('plan')) setPlanError(true) })
       .finally(() => !cancel && setLoading(false))
     return () => { cancel = true }
-  }, [page, queryActiva, cpv, estado, sort])
+  }, [page, queryActiva, cpv, estado, sort, organismoActivo])
 
   if (planError) return <PlanGate />
 
   return (
     <>
-      <form onSubmit={e => { e.preventDefault(); setQueryActiva(texto.trim()) }} className="card mb-5 p-3.5">
+      <form onSubmit={e => { e.preventDefault(); setQueryActiva(texto.trim()); setOrganismoActivo(organismo.trim()) }} className="card mb-5 p-3.5">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input value={texto} onChange={e => setTexto(e.target.value)}
-            placeholder="Buscar por objeto, comprador o nº de expediente" className="input pl-9" />
+            placeholder="Buscar por objeto o nº de expediente" className="input pl-9" />
+        </div>
+
+        <div className="mt-3 relative">
+          <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input value={organismo} onChange={e => setOrganismo(e.target.value)}
+            placeholder="Filtrar por ministerio / organismo (p.ej. Sanidad, Ayuntamiento de…)" className="input pl-9" />
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
