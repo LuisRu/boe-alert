@@ -93,7 +93,31 @@ export function paraQuien(tipos: string[]): string {
 }
 
 const NUTS_NOMBRE: Record<string, string> = {
-  ES11: 'Galicia', ES111: 'A Coruña', ES112: 'Lugo', ES113: 'Ourense', ES114: 'Pontevedra', ES: 'Toda España',
+  ES: 'Toda España',
+  // Galicia
+  ES11: 'Galicia', ES111: 'A Coruña', ES112: 'Lugo', ES113: 'Ourense', ES114: 'Pontevedra',
+  // Norte
+  ES12: 'Asturias', ES120: 'Asturias', ES13: 'Cantabria', ES130: 'Cantabria',
+  ES21: 'País Vasco', ES211: 'Álava', ES212: 'Gipuzkoa', ES213: 'Bizkaia',
+  ES22: 'Navarra', ES220: 'Navarra', ES23: 'La Rioja', ES230: 'La Rioja',
+  ES24: 'Aragón', ES241: 'Huesca', ES242: 'Teruel', ES243: 'Zaragoza',
+  // Centro
+  ES30: 'Madrid', ES300: 'Madrid',
+  ES41: 'Castilla y León', ES411: 'Ávila', ES412: 'Burgos', ES413: 'León', ES414: 'Palencia',
+  ES415: 'Salamanca', ES416: 'Segovia', ES417: 'Soria', ES418: 'Valladolid', ES419: 'Zamora',
+  ES42: 'Castilla-La Mancha', ES421: 'Albacete', ES422: 'Ciudad Real', ES423: 'Cuenca', ES424: 'Guadalajara', ES425: 'Toledo',
+  ES43: 'Extremadura', ES431: 'Badajoz', ES432: 'Cáceres',
+  // Este
+  ES51: 'Cataluña', ES511: 'Barcelona', ES512: 'Girona', ES513: 'Lleida', ES514: 'Tarragona',
+  ES52: 'Com. Valenciana', ES521: 'Alicante', ES522: 'Castellón', ES523: 'Valencia',
+  ES53: 'Illes Balears', ES531: 'Illes Balears', ES532: 'Illes Balears', ES533: 'Illes Balears',
+  // Sur
+  ES61: 'Andalucía', ES611: 'Almería', ES612: 'Cádiz', ES613: 'Córdoba', ES614: 'Granada',
+  ES615: 'Huelva', ES616: 'Jaén', ES617: 'Málaga', ES618: 'Sevilla',
+  ES62: 'Murcia', ES620: 'Murcia', ES63: 'Ceuta', ES630: 'Ceuta', ES64: 'Melilla', ES640: 'Melilla',
+  // Canarias
+  ES70: 'Canarias', ES703: 'Canarias', ES704: 'Canarias', ES705: 'Canarias',
+  ES706: 'Canarias', ES707: 'Canarias', ES708: 'Canarias', ES709: 'Canarias',
 }
 
 // "Dónde" en lenguaje sencillo (municipio o provincia/CCAA/España).
