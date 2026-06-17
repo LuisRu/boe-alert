@@ -7,7 +7,7 @@ import { api, getToken } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
 import { LicitacionCard } from '@/components/LicitacionCard'
 import { Combobox } from '@/components/Combobox'
-import { CPV_DIVISIONES } from '@/lib/cpv'
+import { CPV_CATALOGO } from '@/lib/cpv'
 import type { Licitacion, LicitacionFeed, LicitacionBuscar } from '@/lib/licitacion'
 
 type Tab = 'parati' | 'explorar'
@@ -21,7 +21,7 @@ const SEGMENTS: { value: Estado; label: string }[] = [
 ]
 
 // Opciones del selector CPV: "código · nombre" (buscable por número o por texto).
-const CPV_OPCIONES = CPV_DIVISIONES.map(d => `${d.code} · ${d.label}`)
+const CPV_OPCIONES = CPV_CATALOGO.map(d => `${d.code} · ${d.label}`)
 
 export default function ConcursosPage() {
   const router = useRouter()
