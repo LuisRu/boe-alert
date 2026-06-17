@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   Coins, CalendarClock, Tag, MapPin, ArrowRight, FileText, Sparkles,
-  Building2, ChevronDown, Gavel, CheckCircle2,
+  Building2, ChevronDown, Gavel, CheckCircle2, Trophy, Award,
 } from 'lucide-react'
 import { type Licitacion } from '@/lib/licitacion'
 import { cpvLabel } from '@/lib/cpv'
@@ -45,16 +45,20 @@ export function LicitacionCard({
 }) {
   const [open, setOpen] = useState(false)
   const plazo = plazoLabel(lic)
+  const esAdjudicada = lic.tipoAnuncio === 'result'
   // Título oficial de TED viene como "<País> – <objeto>"; quitamos el prefijo
   // del país (todo lo anterior al primer guion largo separador).
   const tituloLimpio = lic.titulo.replace(/^[^–]{1,30}–\s*/, '')
+  const ganadores = lic.adjudicatario?.slice(0, 3).join(', ')
 
   return (
     <article className="card animate-in overflow-hidden">
       <div className="p-4 sm:p-5">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <span className="pill bg-indigo-50 text-indigo-700"><Gavel className="h-3 w-3" /> Licitación</span>
-          {showStatus && (
+          {esAdjudicada
+            ? <span className="pill bg-amber-50 text-amber-700"><Trophy className="h-3 w-3" /> Adjudicada</span>
+            : <span className="pill bg-indigo-50 text-indigo-700"><Gavel className="h-3 w-3" /> Licitación</span>}
+          {showStatus && !esAdjudicada && (
             lic.abierta
               ? <span className="pill bg-emerald-50 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> Abierta</span>
               : <span className="pill bg-slate-100 text-subtle">Cerrada</span>
@@ -71,15 +75,17 @@ export function LicitacionCard({
         )}
 
         <div className="mt-3.5 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3">
-          <Dato icon={<Coins className="h-4 w-4" />} label="Presupuesto" value={formatImporte(lic.presupuesto)} />
-          <Dato icon={<CalendarClock className="h-4 w-4" />} label="Plazo" value={plazo.txt} tone={plazo.urgente ? 'text-danger' : undefined} />
+          <Dato icon={<Coins className="h-4 w-4" />} label={esAdjudicada ? 'Importe adjudicado' : 'Presupuesto'} value={formatImporte(lic.presupuesto)} />
+          {esAdjudicada
+            ? <Dato icon={<Award className="h-4 w-4" />} label="Adjudicado a" value={ganadores || '—'} />
+            : <Dato icon={<CalendarClock className="h-4 w-4" />} label="Plazo" value={plazo.txt} tone={plazo.urgente ? 'text-danger' : undefined} />}
           <Dato icon={<Tag className="h-4 w-4" />} label="Sector" value={familias(lic.cpvCodes)} />
           <Dato icon={<MapPin className="h-4 w-4" />} label="Dónde" value={donde(null, lic.nutsCodes)} />
         </div>
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={() => onOpen(lic.id, lic.urlOficial)} className="btn-primary flex-1">
-            Ver pliego <ArrowRight className="h-4 w-4" />
+            {esAdjudicada ? 'Ver adjudicación' : 'Ver pliego'} <ArrowRight className="h-4 w-4" />
           </button>
           <button onClick={() => setOpen(o => !o)} className="btn-outline px-3" aria-label="Ver detalles">
             <ChevronDown className={`h-4 w-4 transition ${open ? 'rotate-180' : ''}`} />

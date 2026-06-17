@@ -10,13 +10,13 @@ import { CPV_DIVISIONES } from '@/lib/cpv'
 import type { Licitacion, LicitacionFeed, LicitacionBuscar } from '@/lib/licitacion'
 
 type Tab = 'parati' | 'explorar'
-type Estado = 'abiertas' | 'todas' | 'cerradas'
+type Estado = 'abiertas' | 'adjudicadas' | 'todas'
 type Sort = 'score' | 'plazo' | 'reciente'
 
 const SEGMENTS: { value: Estado; label: string }[] = [
   { value: 'abiertas', label: 'Abiertos' },
+  { value: 'adjudicadas', label: 'Adjudicados' },
   { value: 'todas', label: 'Todos' },
-  { value: 'cerradas', label: 'Cerrados' },
 ]
 
 export default function ConcursosPage() {

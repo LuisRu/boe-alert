@@ -4,8 +4,10 @@ export interface Licitacion {
   id: string
   expediente: string
   source: string
+  tipoAnuncio: string | null // "competition" (abierta) | "result" (adjudicada)
   titulo: string
   comprador: string | null
+  adjudicatario: string[]
   cpvCodes: string[]
   nutsCodes: string[]
   presupuesto: number | null
