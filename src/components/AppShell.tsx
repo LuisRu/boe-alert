@@ -17,12 +17,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen">
+      {/* Halo teal sutil de fondo (atmósfera, coherente con la landing) */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-80"
+        style={{ background: 'radial-gradient(70% 100% at 50% 0%, rgba(20,184,166,.10), transparent 70%)' }} />
       {/* Barra superior */}
       <header className="sticky top-0 z-30 border-b border-line bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <a href="/dashboard" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-brand-500 to-brand-700 text-sm font-bold text-white shadow-sm">S</span>
-            <span className="text-[17px] font-bold tracking-tight">Subvenciona</span>
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-sm font-bold text-[#06201d] shadow-sm">S</span>
+            <span className="text-[18px] font-semibold tracking-tight">Subvenciona</span>
           </a>
 
           {/* Nav escritorio */}

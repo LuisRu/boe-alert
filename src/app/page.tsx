@@ -2,12 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Fraunces, Hanken_Grotesk } from 'next/font/google'
 import { ArrowRight, Coins, CalendarClock, MapPin, Sparkles, ShieldCheck, Building2, User, Bell, Compass } from 'lucide-react'
 import { formatImporte, paraQuien as paraQuienFmt, donde } from '@/lib/format'
-
-const display = Fraunces({ subsets: ['latin'], weight: ['400', '500', '600', '700', '900'], style: ['normal', 'italic'], variable: '--font-display' })
-const body = Hanken_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body' })
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -40,7 +36,7 @@ export default function Landing() {
   }, [])
 
   return (
-    <main className={`${display.variable} ${body.variable} min-h-screen bg-canvas text-ink`} style={{ fontFamily: 'var(--font-body)' }}>
+    <main className="min-h-screen bg-canvas text-ink">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       {/* ─── HERO (oscuro, malla teal + grano) ─── */}

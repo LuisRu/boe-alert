@@ -38,6 +38,11 @@
     color: #0b1220;
     -webkit-tap-highlight-color: transparent;
   }
+  /* Encabezados con la tipografía display (look editorial, coherente con la landing) */
+  h1, h2, h3 {
+    font-family: var(--font-display), Georgia, serif;
+    letter-spacing: -0.015em;
+  }
 }
 
 @layer components {
