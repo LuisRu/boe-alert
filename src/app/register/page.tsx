@@ -32,6 +32,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [consent, setConsent] = useState(false)
 
+  const [billingDown, setBillingDown] = useState(false)
   const [userType, setUserType] = useState<UserType>('PARTICULAR')
   const [regionNuts, setRegionNuts] = useState('ES111')
   const [cnae, setCnae] = useState('')
@@ -80,7 +81,11 @@ export default function RegisterPage() {
         body: JSON.stringify({ plan }),
       })
       window.location.href = url
-    } catch (err) { setError((err as Error).message); setLoading(false) }
+    } catch {
+      // Si el pago aún no está activo, no bloqueamos: la cuenta y el perfil ya
+      // están creados → dejamos entrar y probar (el pago se completa más tarde).
+      setBillingDown(true); setLoading(false)
+    }
   }
 
   return (
@@ -180,7 +185,7 @@ export default function RegisterPage() {
           </form>
         )}
 
-        {step === 3 && (
+        {step === 3 && !billingDown && (
           <div className="mt-6 space-y-3">
             <PlanCard onClick={() => handleCheckout('PRO')} disabled={loading}
               name="Pro" price="9,99 €/mes" who="Autónomos y particulares"
@@ -189,6 +194,19 @@ export default function RegisterPage() {
               name="Business" price="49 €/mes" who="Empresas"
               features={['Ayudas de toda España', 'Concursos públicos de tu zona', 'Filtros por CPV y presupuesto']} />
             <p className="pt-1 text-center text-xs text-subtle">Tarjeta requerida · sin permanencia · cancela cuando quieras</p>
+          </div>
+        )}
+
+        {step === 3 && billingDown && (
+          <div className="mt-6 rounded-2xl border border-line bg-white p-6 text-center">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-brand-600">
+              <Check className="h-6 w-6" />
+            </div>
+            <h2 className="text-xl font-medium">¡Cuenta creada!</h2>
+            <p className="mt-1.5 text-sm text-subtle">El pago se activará muy pronto. Mientras, entra y prueba el panel con tus alertas.</p>
+            <Link href="/dashboard" className="btn-primary mt-5 inline-flex w-full justify-center py-3.5 text-base">
+              Entrar al panel <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         )}
       </main>
