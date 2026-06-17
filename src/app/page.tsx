@@ -59,7 +59,7 @@ export default function Landing() {
           <Link href="/login" className="text-sm text-white/70 transition hover:text-white">Entrar →</Link>
         </header>
 
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-20 pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pb-28 lg:pt-16">
+        <div className="relative mx-auto max-w-3xl px-5 pb-20 pt-12 lg:pb-28 lg:pt-20">
           <div>
             <p className="fu d1 mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[13px] text-brand-200">
               <ShieldCheck className="h-3.5 w-3.5" /> Datos oficiales de la BDNS · toda España
@@ -81,11 +81,6 @@ export default function Landing() {
               </a>
             </div>
             <p className="fu d5 mt-4 text-sm text-white/45">Sin permanencia · cancela cuando quieras</p>
-          </div>
-
-          <div className="fu d4 relative">
-            <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-brand-400/10 blur-2xl" />
-            <ExampleCard m={muestra[0]} floating />
           </div>
         </div>
       </section>
