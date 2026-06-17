@@ -59,7 +59,7 @@ export default function Landing() {
           <Link href="/login" className="text-sm text-white/70 transition hover:text-white">Entrar →</Link>
         </header>
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pb-28 lg:pt-16">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-20 pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pb-28 lg:pt-16">
           <div>
             <p className="fu d1 mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[13px] text-brand-200">
               <ShieldCheck className="h-3.5 w-3.5" /> Datos oficiales de la BDNS · toda España
@@ -95,7 +95,7 @@ export default function Landing() {
         <h2 className="max-w-2xl text-3xl font-medium tracking-tight sm:text-4xl" style={{ fontFamily: 'var(--font-display)' }}>
           Para quien busca dinero <span className="text-brand-600">y</span> para quien busca contratos.
         </h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
           <Audience
             icon={<User className="h-5 w-5" />}
             tag="Autónomos · pymes · particulares"
@@ -117,7 +117,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Cómo funciona</p>
           <h2 className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl" style={{ fontFamily: 'var(--font-display)' }}>Tres pasos. Cinco minutos.</h2>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
             <Step n="01" icon={<User className="h-5 w-5" />} title="Cuéntanos quién eres" desc="Tu provincia, a qué te dedicas y qué te interesa. Particular, autónomo o empresa." />
             <Step n="02" icon={<Compass className="h-5 w-5" />} title="Cruzamos cada convocatoria" desc="Comparamos las publicaciones oficiales con tu perfil y filtramos lo que de verdad puedes pedir." />
             <Step n="03" icon={<Bell className="h-5 w-5" />} title="Recibes solo lo tuyo" desc="Un email diario con titulares claros: qué es, para quién, cuánto y qué hacer. Sin ruido." />
@@ -129,7 +129,7 @@ export default function Landing() {
       <section id="ejemplos" className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Ejemplos reales</p>
         <h2 className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl" style={{ fontFamily: 'var(--font-display)' }}>Convocatorias abiertas hoy</h2>
-        <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {(muestra.length ? muestra.slice(0, 6) : Array.from({ length: 3 })).map((m, i) => (
             <ExampleCard key={(m as Muestra)?.id ?? i} m={m as Muestra | undefined} />
           ))}
@@ -142,7 +142,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
           <h2 className="text-3xl font-medium tracking-tight sm:text-4xl" style={{ fontFamily: 'var(--font-display)' }}>Planes</h2>
           <p className="mt-2 text-subtle">14 días gratis en todos. Cancela cuando quieras.</p>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
             <Plan name="Pro" price="9,99" unit="€/mes" who="Autónomos y particulares" features={['Ayudas de tu comunidad y estatales', 'Email diario personalizado', 'Requisitos y encaje explicados']} />
             <Plan name="Business" price="49" unit="€/mes" who="Empresas" highlight features={['Ayudas de toda España', 'Concursos públicos de tu zona', 'Filtros por CPV y presupuesto']} />
             <Plan name="Business+" price="99" unit="€/mes" who="Empresas que licitan en serio" features={['Concursos de toda España', 'Más CPV y alertas', 'Soporte prioritario']} />
@@ -192,8 +192,9 @@ function ExampleCard({ m, floating }: { m?: Muestra; floating?: boolean }) {
     : m.plazoTexto || 'Abierta'
   return (
     <article className={`relative rounded-2xl border p-5 ${floating ? 'border-white/10 bg-white text-ink shadow-2xl shadow-black/30' : 'border-line bg-white'}`}>
-      <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
-        <Sparkles className="h-3 w-3 shrink-0" /> {para}
+      <span className="flex w-fit max-w-full items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
+        <Sparkles className="h-3 w-3 shrink-0" />
+        <span className="min-w-0 truncate">{para}</span>
       </span>
       <p className="mt-3 line-clamp-3 text-[15px] font-semibold leading-snug text-ink" style={{ fontFamily: 'var(--font-display)' }}>
         {m.aiSummary}
