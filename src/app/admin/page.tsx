@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  FileText, Gavel, Users, Coins, ShieldAlert, Sparkles, Trophy, Building2, Clock,
+  FileText, Gavel, Users, Coins, ShieldAlert, Sparkles, Trophy, Building2, Clock, Wand2, Eye, Check,
 } from 'lucide-react'
 import { api, getToken } from '@/lib/api'
 import { AppShell } from '@/components/AppShell'
@@ -143,7 +143,100 @@ export default function AdminPage() {
           </div>
         </Panel>
       </div>
+
+      {/* Estilo de los resúmenes IA */}
+      <section className="mt-6">
+        <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold text-ink"><Wand2 className="h-4 w-4" /> Estilo de los resúmenes IA</h2>
+        <p className="mb-3 text-xs text-subtle">Ajusta el tono y la redacción de los resúmenes (longitud, qué destacar, lenguaje). El formato interno que usa el matching no se toca. Previsualiza antes de guardar.</p>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <StyleEditor source="bdns" titulo="Subvenciones (BDNS)" />
+          <StyleEditor source="ted" titulo="Licitaciones (TED / PLACSP)" />
+        </div>
+      </section>
     </AppShell>
+  )
+}
+
+// ─── Editor de estilo con previsualización ────────────────────────────────────
+
+interface PreviewItem {
+  titulo: string
+  actual: { headline: string | null; paraQuien: string | null; queConsigues: string | null; siguientePaso: string | null }
+  nuevo: { headline: string | null; paraQuien: string | null; queConsigues: string | null; siguientePaso: string | null }
+}
+
+function StyleEditor({ source, titulo }: { source: 'bdns' | 'ted'; titulo: string }) {
+  const [estilo, setEstilo] = useState('')
+  const [cargado, setCargado] = useState(false)
+  const [preview, setPreview] = useState<PreviewItem[] | null>(null)
+  const [estado, setEstado] = useState<'idle' | 'previewing' | 'saving' | 'saved' | 'error'>('idle')
+  const [msg, setMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    api<{ bdns: string; ted: string }>('/api/admin/estilo')
+      .then(d => { setEstilo(d[source]); setCargado(true) })
+      .catch(() => setCargado(true))
+  }, [source])
+
+  async function previsualizar() {
+    setEstado('previewing'); setMsg(null); setPreview(null)
+    try {
+      const r = await api<PreviewItem[]>('/api/admin/estilo/preview', { method: 'POST', body: JSON.stringify({ source, estilo }) })
+      setPreview(r); setEstado('idle')
+    } catch (e) { setEstado('error'); setMsg((e as Error).message) }
+  }
+  async function guardar() {
+    setEstado('saving'); setMsg(null)
+    try {
+      await api('/api/admin/estilo', { method: 'PUT', body: JSON.stringify({ [source]: estilo }) })
+      setEstado('saved'); setTimeout(() => setEstado('idle'), 2500)
+    } catch (e) { setEstado('error'); setMsg((e as Error).message) }
+  }
+
+  return (
+    <div className="card p-5">
+      <h3 className="mb-2 text-sm font-semibold text-ink">{titulo}</h3>
+      <textarea
+        value={estilo}
+        onChange={e => setEstilo(e.target.value)}
+        rows={4}
+        disabled={!cargado}
+        placeholder="Ej.: Tono cercano y motivador. Frases muy cortas. Destaca SIEMPRE el importe y el plazo. Evita tecnicismos."
+        className="input text-[13px]"
+      />
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button onClick={previsualizar} disabled={estado === 'previewing'} className="btn-outline px-3 py-1.5 text-[13px]">
+          <Eye className="h-3.5 w-3.5" /> {estado === 'previewing' ? 'Generando…' : 'Previsualizar'}
+        </button>
+        <button onClick={guardar} disabled={estado === 'saving'} className="btn-primary px-3 py-1.5 text-[13px]">
+          {estado === 'saved' ? <><Check className="h-3.5 w-3.5" /> Guardado</> : <><Sparkles className="h-3.5 w-3.5" /> Guardar estilo</>}
+        </button>
+        {estado === 'error' && <span className="text-[12px] text-danger">{msg}</span>}
+      </div>
+
+      {preview && (
+        <div className="mt-4 space-y-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-subtle">Antes vs después ({preview.length} ejemplos)</p>
+          {preview.map((p, i) => (
+            <div key={i} className="rounded-xl border border-line p-3">
+              <p className="mb-2 line-clamp-1 text-[11px] text-slate-400">{p.titulo}</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-lg bg-slate-50 p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase text-subtle">Actual</p>
+                  <p className="text-[13px] font-medium text-ink">{p.actual.headline ?? '—'}</p>
+                  <p className="mt-1 text-[12px] text-subtle">{p.actual.paraQuien}</p>
+                </div>
+                <div className="rounded-lg bg-brand-50 p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase text-brand-700">Con tu estilo</p>
+                  <p className="text-[13px] font-medium text-ink">{p.nuevo.headline ?? '—'}</p>
+                  <p className="mt-1 text-[12px] text-subtle">{p.nuevo.paraQuien}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
