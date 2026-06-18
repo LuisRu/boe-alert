@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [forbidden, setForbidden] = useState(false)
+  const [refrescando, setRefrescando] = useState(false)
 
   useEffect(() => {
     if (!getToken()) { router.push('/login'); return }
@@ -48,6 +49,12 @@ export default function AdminPage() {
         else setError((e as Error).message)
       })
   }, [router])
+
+  async function refrescar() {
+    setRefrescando(true)
+    try { setStats(await api<Stats>('/api/admin/stats?fresh=1')) } catch { /* */ }
+    setRefrescando(false)
+  }
 
   if (forbidden) {
     return (
@@ -70,9 +77,14 @@ export default function AdminPage() {
 
   return (
     <AppShell>
-      <div className="mb-5">
-        <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Panel de administración</h1>
-        <p className="mt-0.5 text-sm text-subtle">Estado de los datos y del pipeline en producción.</p>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[22px] font-bold tracking-tight sm:text-2xl">Panel de administración</h1>
+          <p className="mt-0.5 text-sm text-subtle">Estado de los datos y del pipeline en producción.</p>
+        </div>
+        <button onClick={refrescar} disabled={refrescando} className="btn-outline shrink-0 px-3 py-1.5 text-[13px]">
+          {refrescando ? 'Actualizando…' : 'Actualizar'}
+        </button>
       </div>
 
       {/* KPIs principales */}
